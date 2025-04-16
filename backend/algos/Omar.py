@@ -46,5 +46,6 @@ def run_td_learning_for_pay_rent_decision(current_player, players, properties, r
         bool: True if the agent believes paying rent is better long-term; False to suggest mortgaging
 """
 
+    # test 
     res = [True, False]
     return res[random.randint(0,1)]
