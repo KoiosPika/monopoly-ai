@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-def run_td_learning_for_pay_rent_decision(current_player, players, properties, rent, learning_rate=0.1, discount=0.9):
+async def run_td_learning_for_pay_rent_decision(current_player, players, properties, rent, learning_rate=0.1, discount=0.9):
     """
     Uses Temporal Difference (TD) Learning to decide whether the current player should pay rent 
     or mortgage properties instead. Learns optimal state values over time and updates value estimates 
