@@ -40,7 +40,7 @@ def generate_dummy_properties():
         for i in range(24)
     ]
 
-def main():
+async def main():
     print("Which algorithm would you like to test?")
     print("1. MCTS (jail decision)")
     print("2. Expectimax (roll risk)")
@@ -57,18 +57,18 @@ def main():
     if choice == "1":
         print("Testing MCTS (jail decision)...")
         current_player["inJail"] = True
-        decision = run_mcts_for_jail_decision(current_player, players, properties)
+        decision = await run_mcts_for_jail_decision(current_player, players, properties)
         print("MCTS chose:", decision)
 
     elif choice == "2":
         print("Testing Expectimax (roll risk)...")
-        value = run_expectimax_for_roll_decision(current_player, players, properties)
+        value = await run_expectimax_for_roll_decision(current_player, players, properties)
         print("Expectimax score (higher = better roll):", value)
 
     elif choice == "3":
         print("Testing TD-Learning (should pay rent)...")
         rent = random.randint(30, 150)
-        decision = run_td_learning_for_pay_rent_decision(current_player, players, properties, rent)
+        decision = await run_td_learning_for_pay_rent_decision(current_player, players, properties, rent)
         if decision:
             print(f"TD-Learning says 'PAY' for rent {rent}")
         else:
@@ -77,7 +77,7 @@ def main():
     elif choice == "4":
         print("Testing UCB1 (should buy property)...")
         property_to_consider = random.choice(properties)
-        decision = run_ucb1_for_buying_decision(current_player, players, properties, property_to_consider)
+        decision = await run_ucb1_for_buying_decision(current_player, players, properties, property_to_consider)
         if decision:
             print(f"UCB1 says 'BUY' for {property_to_consider['name']}")
         else:
@@ -89,7 +89,7 @@ def main():
             p["owner"] = current_player["name"]
             current_player["properties"].append(p["name"])
 
-        prop_to_mortgage = run_heurisitc_search_choose_property_to_mortgage(current_player, players, properties)
+        prop_to_mortgage = await run_heurisitc_search_choose_property_to_mortgage(current_player, players, properties)
         if prop_to_mortgage:
             print(f"Heuristic suggests mortgaging: {prop_to_mortgage['name']}")
         else:
