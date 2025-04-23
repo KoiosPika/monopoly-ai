@@ -33,27 +33,17 @@ export default function Home() {
 
   const [player1, setPlayer1] = useState<any>({ ...initialStats, name: "Player 1", avatar: 'avatar_1.png' });
   const [player2, setPlayer2] = useState<any>({ ...initialStats, name: "Player 2", avatar: 'avatar_2.png' });
-  const [player3, setPlayer3] = useState<any>({ ...initialStats, name: "Player 3", avatar: 'avatar_3.png' });
-  const [player4, setPlayer4] = useState<any>({ ...initialStats, name: "Player 4", avatar: 'avatar_4.png' });
   const [visible, setVisible] = useState(false)
   const [diceValues, setDiceValues] = useState([1, 1]);
   const [properties, setProperties] = useState([
     { name: "P1", index: 1, price: 100, rent: 10, rentOneHouse: 20, rentTwoHouses: 30, rentThreeHouses: 40, OneHouseCost: 60, houses: 0, owner: null, mortgaged: false, color: '#2acb1a' },
-    { name: "P2", index: 2, price: 150, rent: 20, rentOneHouse: 40, rentTwoHouses: 60, rentThreeHouses: 80, OneHouseCost: 90, houses: 0, owner: null, mortgaged: false, color: '#2365d9' },
-    { name: "P3", index: 4, price: 200, rent: 40, rentOneHouse: 80, rentTwoHouses: 120, rentThreeHouses: 160, OneHouseCost: 120, houses: 0, owner: null, mortgaged: false, color: '#FF69B4' },
-    { name: "P4", index: 5, price: 250, rent: 60, rentOneHouse: 120, rentTwoHouses: 180, rentThreeHouses: 240, OneHouseCost: 150, houses: 0, owner: null, mortgaged: false, color: '#FFA500' },
-    { name: "P5", index: 7, price: 160, rent: 23, rentOneHouse: 45, rentTwoHouses: 70, rentThreeHouses: 90, OneHouseCost: 95, houses: 0, owner: null, mortgaged: false, color: '#a84ecf' },
-    { name: "P6", index: 8, price: 110, rent: 12, rentOneHouse: 25, rentTwoHouses: 35, rentThreeHouses: 50, OneHouseCost: 65, houses: 0, owner: null, mortgaged: false, color: '#2acb1a' },
-    { name: "P7", index: 10, price: 260, rent: 65, rentOneHouse: 130, rentTwoHouses: 195, rentThreeHouses: 260, OneHouseCost: 155, houses: 0, owner: null, mortgaged: false, color: '#FFA500' },
-    { name: "P8", index: 11, price: 210, rent: 44, rentOneHouse: 90, rentTwoHouses: 130, rentThreeHouses: 175, OneHouseCost: 125, houses: 0, owner: null, mortgaged: false, color: '#FF69B4' },
-    { name: "P9", index: 13, price: 120, rent: 14, rentOneHouse: 30, rentTwoHouses: 40, rentThreeHouses: 55, OneHouseCost: 70, houses: 0, owner: null, mortgaged: false, color: '#a84ecf' },
-    { name: "P10", index: 14, price: 170, rent: 26, rentOneHouse: 50, rentTwoHouses: 80, rentThreeHouses: 105, OneHouseCost: 100, houses: 0, owner: null, mortgaged: false, color: '#2365d9' },
-    { name: "P11", index: 16, price: 220, rent: 48, rentOneHouse: 95, rentTwoHouses: 145, rentThreeHouses: 190, OneHouseCost: 130, houses: 0, owner: null, mortgaged: false, color: '#FF69B4' },
-    { name: "P12", index: 17, price: 270, rent: 70, rentOneHouse: 140, rentTwoHouses: 210, rentThreeHouses: 280, OneHouseCost: 165, houses: 0, owner: null, mortgaged: false, color: '#a84ecf' },
-    { name: "P13", index: 19, price: 180, rent: 29, rentOneHouse: 60, rentTwoHouses: 85, rentThreeHouses: 115, OneHouseCost: 110, houses: 0, owner: null, mortgaged: false, color: '#2365d9' },
-    { name: "P14", index: 20, price: 130, rent: 16, rentOneHouse: 30, rentTwoHouses: 50, rentThreeHouses: 65, OneHouseCost: 80, houses: 0, owner: null, mortgaged: false, color: '#2acb1a' },
-    { name: "P15", index: 22, price: 290, rent: 75, rentOneHouse: 150, rentTwoHouses: 225, rentThreeHouses: 300, OneHouseCost: 175, houses: 0, owner: null, mortgaged: false, color: '#FFA500' },
-    { name: "P16", index: 23, price: 230, rent: 52, rentOneHouse: 105, rentTwoHouses: 155, rentThreeHouses: 210, OneHouseCost: 140, houses: 0, owner: null, mortgaged: false, color: '#a84ecf' },
+    { name: "P2", index: 3, price: 150, rent: 20, rentOneHouse: 40, rentTwoHouses: 60, rentThreeHouses: 80, OneHouseCost: 90, houses: 0, owner: null, mortgaged: false, color: '#2365d9' },
+    { name: "P3", index: 5, price: 200, rent: 40, rentOneHouse: 80, rentTwoHouses: 120, rentThreeHouses: 160, OneHouseCost: 120, houses: 0, owner: null, mortgaged: false, color: '#FF69B4' },
+    { name: "P4", index: 7, price: 250, rent: 60, rentOneHouse: 120, rentTwoHouses: 180, rentThreeHouses: 240, OneHouseCost: 150, houses: 0, owner: null, mortgaged: false, color: '#FFA500' },
+    { name: "P5", index: 9, price: 160, rent: 23, rentOneHouse: 45, rentTwoHouses: 70, rentThreeHouses: 90, OneHouseCost: 95, houses: 0, owner: null, mortgaged: false, color: '#a84ecf' },
+    { name: "P6", index: 11, price: 110, rent: 12, rentOneHouse: 25, rentTwoHouses: 35, rentThreeHouses: 50, OneHouseCost: 65, houses: 0, owner: null, mortgaged: false, color: '#2acb1a' },
+    { name: "P7", index: 13, price: 260, rent: 65, rentOneHouse: 130, rentTwoHouses: 195, rentThreeHouses: 260, OneHouseCost: 155, houses: 0, owner: null, mortgaged: false, color: '#FFA500' },
+    { name: "P8", index: 15, price: 210, rent: 44, rentOneHouse: 90, rentTwoHouses: 130, rentThreeHouses: 175, OneHouseCost: 125, houses: 0, owner: null, mortgaged: false, color: '#FF69B4' },
   ]);
 
   const [landedProperty, setLandedProperty] = useState<any>(null);
@@ -62,12 +52,13 @@ export default function Home() {
   const [bankruptcyModal, setBankruptcyModal] = useState<any>(null);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [inJailDialog, setinJailDialog] = useState(true);
+  const [scenarioGenerated, setScenarioGenerated] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
+
 
   const players = [
     { player: player1, setPlayer: setPlayer1 },
     { player: player2, setPlayer: setPlayer2 },
-    { player: player3, setPlayer: setPlayer3 },
-    { player: player4, setPlayer: setPlayer4 },
   ];
 
   const currentPlayer = players[currentPlayerIndex].player;
@@ -85,11 +76,7 @@ export default function Home() {
     const setPlayer =
       player.name === "Player 1"
         ? setPlayer1
-        : player.name === "Player 2"
-          ? setPlayer2
-          : player.name === "Player 3"
-            ? setPlayer3
-            : setPlayer4;
+        : setPlayer2;
 
     if (player.bankrupt) {
       nextTurn();
@@ -128,12 +115,12 @@ export default function Home() {
       }
 
       const diceRoll = dice1 + dice2;
-      let newPosition = (player.position + diceRoll) % 24;
+      let newPosition = (player.position + diceRoll) % 16;
 
       let currentPos = player.position;
       const moveInterval = setInterval(() => {
         if (currentPos !== newPosition) {
-          currentPos = (currentPos + 1) % 24;
+          currentPos = (currentPos + 1) % 16;
           setPlayer((prev: any) => ({
             ...prev,
             position: currentPos,
@@ -145,11 +132,11 @@ export default function Home() {
           const property = properties.find(p => p.index === newPosition);
           if (property) {
             setLandedProperty({ player, setPlayer, property });
-          } else if (newPosition == 9 || newPosition == 21) {
+          } else if (newPosition == 6 || newPosition == 14) {
             const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
             setChanceCard(card)
             card.functionality(player, setPlayer, players);
-          } else if (newPosition == 3 || newPosition == 15) {
+          } else if (newPosition == 2 || newPosition == 10) {
             const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
             setChanceCard(card)
             card.functionality(player, setPlayer, players);
@@ -208,8 +195,6 @@ export default function Home() {
       // Give money to the property owner
       if (owner.player.name === "Player 1") setPlayer1((prev: any) => ({ ...prev, balance: prev.balance + rentAmount }));
       if (owner.player.name === "Player 2") setPlayer2((prev: any) => ({ ...prev, balance: prev.balance + rentAmount }));
-      if (owner.player.name === "Player 3") setPlayer3((prev: any) => ({ ...prev, balance: prev.balance + rentAmount }));
-      if (owner.player.name === "Player 4") setPlayer4((prev: any) => ({ ...prev, balance: prev.balance + rentAmount }));
 
       setLandedProperty(null);
     } else {
@@ -221,8 +206,6 @@ export default function Home() {
   const declareBankruptcy = (player: any) => {
     setPlayer1((prev: any) => prev.name === player.name ? { ...prev, bankrupt: true, balance: 0, properties: [] } : prev);
     setPlayer2((prev: any) => prev.name === player.name ? { ...prev, bankrupt: true, balance: 0, properties: [] } : prev);
-    setPlayer3((prev: any) => prev.name === player.name ? { ...prev, bankrupt: true, balance: 0, properties: [] } : prev);
-    setPlayer4((prev: any) => prev.name === player.name ? { ...prev, bankrupt: true, balance: 0, properties: [] } : prev);
 
     setBankruptcyModal(null);
   };
@@ -275,8 +258,6 @@ export default function Home() {
     // Give property to buyer
     if (buyer.player.name === "Player 1") setPlayer1((prev: any) => ({ ...prev, properties: [...prev.properties, propertyToSell.name] }));
     if (buyer.player.name === "Player 2") setPlayer2((prev: any) => ({ ...prev, properties: [...prev.properties, propertyToSell.name] }));
-    if (buyer.player.name === "Player 3") setPlayer3((prev: any) => ({ ...prev, properties: [...prev.properties, propertyToSell.name] }));
-    if (buyer.player.name === "Player 4") setPlayer4((prev: any) => ({ ...prev, properties: [...prev.properties, propertyToSell.name] }));
 
     setLandedProperty(null);
   };
@@ -358,23 +339,23 @@ export default function Home() {
         properties
       })
     });
-  
+
     const propToMortgage = await response.json();
-  
+
     if (!propToMortgage) return false;
-  
+
     setPlayer((prev: any) => ({
       ...prev,
       balance: prev.balance + propToMortgage.price / 2,
       mortgagedProperties: [...prev.mortgagedProperties, propToMortgage.name]
     }));
-  
+
     setProperties(prev =>
       prev.map(p =>
         p.name === propToMortgage.name ? { ...p, mortgaged: true } : p
       )
     );
-  
+
     return true;
   };
 
@@ -446,11 +427,11 @@ export default function Home() {
             }));
 
             const diceRoll = dice1 + dice2;
-            const newPosition = (player.position + diceRoll) % 24;
+            const newPosition = (player.position + diceRoll) % 16;
 
             let currentPos = player.position;
             while (currentPos !== newPosition) {
-              currentPos = (currentPos + 1) % 24;
+              currentPos = (currentPos + 1) % 16;
               setPlayer((prev: any) => ({
                 ...prev,
                 position: currentPos,
@@ -506,7 +487,7 @@ export default function Home() {
 
                 const decision = await shouldPay.json();
 
-                if (decision && player.balance >= rent){
+                if (decision && player.balance >= rent) {
                   setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
                   ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
                 } else {
@@ -531,11 +512,11 @@ export default function Home() {
                   )
                 );
               }
-            } else if ([9, 21].includes(newPosition)) {
+            } else if ([6, 14].includes(newPosition)) {
               const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
               setChanceCard(card);
               card.functionality(player, setPlayer, players);
-            } else if ([3, 15].includes(newPosition)) {
+            } else if ([2, 10].includes(newPosition)) {
               const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
               setCommunityChestCard(card);
               card.functionality(player, setPlayer, players);
@@ -607,11 +588,11 @@ export default function Home() {
       setVisible(false);
 
       const diceRoll = dice1 + dice2;
-      const newPosition = (player.position + diceRoll) % 24;
+      const newPosition = (player.position + diceRoll) % 16;
 
       let currentPos = player.position;
       while (currentPos !== newPosition) {
-        currentPos = (currentPos + 1) % 24;
+        currentPos = (currentPos + 1) % 16;
         setPlayer((prev: any) => ({
           ...prev,
           position: currentPos,
@@ -623,9 +604,6 @@ export default function Home() {
 
       if (property) {
         if (!property.owner) {
-          const colorSet = properties.filter(p => p.color === property.color);
-          const ownedByPlayer = colorSet.filter(p => p.owner === player.name);
-          const isMonopolyPossible = ownedByPlayer.length >= colorSet.length - 1;
 
           const response = await fetch('http://127.0.0.1:8000/ai/ucb1', {
             method: 'POST',
@@ -686,11 +664,11 @@ export default function Home() {
             )
           );
         }
-      } else if ([9, 21].includes(newPosition)) {
+      } else if ([6, 14].includes(newPosition)) {
         const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
         setChanceCard(card);
         card.functionality(player, setPlayer, players);
-      } else if ([3, 15].includes(newPosition)) {
+      } else if ([2, 10].includes(newPosition)) {
         const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
         setCommunityChestCard(card);
         card.functionality(player, setPlayer, players);
@@ -715,6 +693,53 @@ export default function Home() {
     }
   }
 
+  const generateScenario = () => {
+    setPlayer1({
+      ...initialStats,
+      name: "Player 1",
+      avatar: "avatar_1.png",
+      balance: 1011,
+      position: 0,
+      properties: ["P1", "P7", "P3", "P4"],
+      houses: {},
+      inJail: false,
+      bankrupt: false,
+    });
+
+    setPlayer2({
+      ...initialStats,
+      name: "Player 2",
+      avatar: "avatar_2.png",
+      balance: 260,
+      position: 2,
+      properties: ["P8", "P2", "P5", "P6"],
+      houses: {},
+      inJail: false,
+      bankrupt: false,
+    });
+
+    setProperties((prev: any) =>
+      prev.map((p: any) => {
+        if (["P7"].includes(p.name)) return { ...p, owner: "Player 1", houses: 3 };
+        if (["P3"].includes(p.name)) return { ...p, owner: "Player 1", houses: 1 };
+        if (["P4"].includes(p.name)) return { ...p, owner: "Player 1", houses: 2 };
+        if (["P1"].includes(p.name)) return { ...p, owner: "Player 1", houses: 0 };
+        if (["P8", "P2", "P5", "P6"].includes(p.name)) return { ...p, owner: "Player 2", houses: 0 };
+        return { ...p, owner: null, houses: 0 };
+      })
+    );
+
+    setScenarioGenerated(true);
+    setGameStarted(false);
+    setCurrentPlayerIndex(0);
+  };
+
+  const startGame = () => {
+    setGameStarted(true);
+    if (currentPlayerIndex === 1) loopingGame();
+  };
+
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 pb-10 gap-10 sm:p-20 font-[family-name:var(--font-geist-sans)]" style={{ backgroundImage: 'url(/bg.jpg)' }}>
       <div className="flex flex-row justify-center items-center py-2 rounded-lg gap-3 relative">
@@ -725,35 +750,15 @@ export default function Home() {
         </div>
         <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }}>
           <Image src={'/balance.png'} alt="money" className="h-[75px] w-[120px]" height={200} width={200} />
-          <p className="text-[20px] text-white font-semibold">${(player3.balance).toLocaleString()}</p>
+          <p className="text-[20px] text-white font-semibold">${(player2.balance).toLocaleString()}</p>
         </div>
-        <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px] cursor-pointer" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => handleEndTurn(3)}>
+        <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px] cursor-pointer" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => handleEndTurn(2)}>
           <Image src={'/hand.png'} alt="money" className="h-[80px] w-[90px]" height={200} width={200} />
           <p className="text-[20px] text-white font-semibold">End Turn</p>
         </div>
       </div>
       <div className="flex flex-row justify-center items-center gap-10">
-        <div className="flex flex-col justify-center items-center py-2 rounded-lg gap-3">
-          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }}>
-            <Image src={'/balance.png'} alt="money" className="h-[75px] w-[120px]" height={200} width={200} />
-            <p className="text-[20px] text-white font-semibold">${(player4.balance).toLocaleString()}</p>
-          </div>
-          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px] cursor-pointer" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => handleEndTurn(4)}>
-            <Image src={'/hand.png'} alt="money" className="h-[80px] w-[90px]" height={200} width={200} />
-            <p className="text-[20px] text-white font-semibold">End Turn</p>
-          </div>
-        </div>
         <Board properties={properties} players={players} />
-        <div className="flex flex-col justify-center items-center py-2 rounded-lg gap-3">
-          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }}>
-            <Image src={'/balance.png'} alt="money" className="h-[75px] w-[120px]" height={200} width={200} />
-            <p className="text-[20px] text-white font-semibold">${(player2.balance).toLocaleString()}</p>
-          </div>
-          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px] cursor-pointer" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => handleEndTurn(2)}>
-            <Image src={'/hand.png'} alt="money" className="h-[80px] w-[90px]" height={200} width={200} />
-            <p className="text-[20px] text-white font-semibold">End Turn</p>
-          </div>
-        </div>
       </div>
       <div className="flex flex-row justify-center items-center py-2 rounded-lg gap-3">
         <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }}>
@@ -772,6 +777,18 @@ export default function Home() {
           <Image src={'/House.png'} alt="money" className="h-[60px] w-[60px]" height={200} width={200} />
           <p className="text-[20px] text-white font-semibold">Repay</p>
         </div>
+      </div>
+      <div className="flex gap-6 mt-6">
+        {!scenarioGenerated && (
+          <Button onClick={generateScenario} className="bg-blue-500 text-white px-6 py-2 rounded-md text-lg">
+            Generate Scenario
+          </Button>
+        )}
+        {scenarioGenerated && !gameStarted && (
+          <Button onClick={startGame} className="bg-green-500 text-white px-6 py-2 rounded-md text-lg">
+            Start Game
+          </Button>
+        )}
       </div>
       {(landedProperty && !landedProperty.property.owner) &&
         <AlertDialog open={true} onOpenChange={() => setLandedProperty(null)}>

@@ -1,7 +1,7 @@
 
 import random
 
-def run_mcts_for_jail_decision(current_player, players, properties, iterations = 100):
+async def run_mcts_for_jail_decision(current_player, players, properties, iterations = 100):
     """
     Uses Monte Carlo Tree Search (MCTS) to decide what the current player should do to get out of jail.
 
