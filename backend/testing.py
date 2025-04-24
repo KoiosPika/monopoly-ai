@@ -3,6 +3,7 @@ from algos.Josh import run_mcts_for_jail_decision
 from algos.Omar import run_td_learning_for_pay_rent_decision
 from algos.utils import run_ucb1_for_buying_decision, run_expectimax_for_roll_decision
 from algos.utils import run_heurisitc_search_choose_property_to_mortgage
+import asyncio
 
 def generate_dummy_player(name="Player 1"):
     return {
@@ -100,4 +101,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
