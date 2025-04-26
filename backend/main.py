@@ -5,8 +5,8 @@ import random
 import uvicorn
 from algos.Josh import run_mcts_for_jail_decision
 from algos.Omar import run_td_learning_for_pay_rent_decision
-from algos.utils import run_ucb1_for_buying_decision, run_heurisitc_search_choose_property_to_mortgage, run_expectimax_for_roll_decision
-from models import ExpectimaxRequest, UCB1Request, MortgageRequest, TDLearningRequest, MCTSRequest
+from algos.utils import run_ucb1_for_buying_decision, run_heurisitc_search_choose_property_to_mortgage, run_expectimax_for_roll_decision, run_expectimax_for_house_building
+from models import ExpectimaxRequest, UCB1Request, MortgageRequest, TDLearningRequest, MCTSRequest, BuildHouseRequest
 
 app = FastAPI()
 
@@ -59,6 +59,16 @@ async def Heuristic_algorithm(data: MortgageRequest):
     players = [p.model_dump() for p in data.players]
     properties = [p.model_dump() for p in data.properties]
     res = await run_heurisitc_search_choose_property_to_mortgage(current_player, players, properties)
+    return res
+
+@app.post("/ai/expectimax-building")
+async def Heuristic_buildomg_algorithm(data: BuildHouseRequest):
+    current_player = data.current_player.model_dump()
+    players = [p.model_dump() for p in data.players]
+    thisProperty = data.thisProperty.model_dump()
+    properties = [p.model_dump() for p in data.properties]
+    res = await run_expectimax_for_house_building(current_player,players, properties, target_property=thisProperty)
+    return res
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)

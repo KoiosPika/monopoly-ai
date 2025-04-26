@@ -58,3 +58,9 @@ class MCTSRequest(BaseModel):
     current_player: PlayerModel
     players: List[PlayerModel]
     properties: List[PropertyModel]
+
+class BuildHouseRequest(BaseModel):
+    current_player: PlayerModel
+    players: List[PlayerModel]
+    thisProperty: PropertyModel
+    properties: List[PropertyModel]

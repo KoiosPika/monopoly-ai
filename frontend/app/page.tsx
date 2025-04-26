@@ -8,7 +8,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -34,6 +33,7 @@ export default function Home() {
   const [player1, setPlayer1] = useState<any>({ ...initialStats, name: "Player 1", avatar: 'avatar_1.png' });
   const [player2, setPlayer2] = useState<any>({ ...initialStats, name: "Player 2", avatar: 'avatar_2.png' });
   const [visible, setVisible] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [diceValues, setDiceValues] = useState([1, 1]);
   const [properties, setProperties] = useState([
     { name: "P1", index: 1, price: 100, rent: 10, rentOneHouse: 20, rentTwoHouses: 30, rentThreeHouses: 40, OneHouseCost: 60, houses: 0, owner: null, mortgaged: false, color: '#2acb1a' },
@@ -328,6 +328,7 @@ export default function Home() {
   }
 
   const handleAIMortgage = async (player: any, setPlayer: any) => {
+    setLoading(true);
     const response = await fetch('http://127.0.0.1:8000/ai/heuristic-mortgage', {
       method: 'POST',
       headers: {
@@ -341,6 +342,7 @@ export default function Home() {
     });
 
     const propToMortgage = await response.json();
+    setLoading(false);
 
     if (!propToMortgage) return false;
 
@@ -362,7 +364,7 @@ export default function Home() {
   const handleEndTurn = (player: number) => {
     if (player == 1) {
       nextTurn()
-      loopingGame()
+      AITurn()
     } else {
       nextTurn()
     }
@@ -370,138 +372,158 @@ export default function Home() {
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  const loopingGame = async () => {
-    for (let i = 0; i < players.length; i++) {
-      const { player, setPlayer } = players[i];
-      if (player.bankrupt) continue;
+  const AITurn = async () => {
+    const { player, setPlayer } = players[1];
+    if (player.bankrupt) return;
 
-      if (player.inJail) {
-        const jailOptions = ['rollDouble', 'payFine', 'useCard'];
-        const result = await fetch('http://127.0.0.1:8000/ai/mcts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            current_player: player,
-            players: players.map(p => p.player),
-            properties: properties
-          })
-        });
+    if (player.inJail) {
+      const jailOptions = ['rollDouble', 'payFine', 'useCard'];
+      setLoading(true);
+      const result = await fetch('http://127.0.0.1:8000/ai/mcts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          current_player: player,
+          players: players.map(p => p.player),
+          properties: properties
+        })
+      });
 
-        const chosen = await result.json()
+      const chosen = await result.json()
+      setLoading(false);
 
-        await sleep(500);
+      await sleep(500);
 
-        if (chosen === 1) {
-          setVisible(true);
-          let intervalId;
+      if (chosen === 1) {
+        setVisible(true);
+        let intervalId;
 
-          intervalId = setInterval(() => {
-            setDiceValues([
-              Math.floor(Math.random() * 6) + 1,
-              Math.floor(Math.random() * 6) + 1,
-            ]);
-          }, 100);
+        intervalId = setInterval(() => {
+          setDiceValues([
+            Math.floor(Math.random() * 6) + 1,
+            Math.floor(Math.random() * 6) + 1,
+          ]);
+        }, 100);
 
-          await sleep(1500);
-          clearInterval(intervalId);
+        await sleep(1500);
+        clearInterval(intervalId);
 
-          const dice1 = Math.floor(Math.random() * 6) + 1;
-          const dice2 = Math.floor(Math.random() * 6) + 1;
-          setDiceValues([dice1, dice2]);
-          await sleep(1000);
-          setVisible(false);
+        const dice1 = Math.floor(Math.random() * 6) + 1;
+        const dice2 = Math.floor(Math.random() * 6) + 1;
+        setDiceValues([dice1, dice2]);
+        await sleep(1000);
+        setVisible(false);
 
-          if (dice1 !== dice2) {
+        if (dice1 !== dice2) {
+          setPlayer((prev: any) => ({
+            ...prev,
+            turnsInJail: prev.turnsInJail + 1,
+          }));
+          return;
+        } else {
+          setPlayer((prev: any) => ({
+            ...prev,
+            inJail: false,
+            turnsInJail: 0,
+          }));
+
+          const diceRoll = dice1 + dice2;
+          const newPosition = (player.position + diceRoll) % 16;
+
+          let currentPos = player.position;
+          while (currentPos !== newPosition) {
+            currentPos = (currentPos + 1) % 16;
             setPlayer((prev: any) => ({
               ...prev,
-              turnsInJail: prev.turnsInJail + 1,
+              position: currentPos,
             }));
-            continue;
-          } else {
-            setPlayer((prev: any) => ({
-              ...prev,
-              inJail: false,
-              turnsInJail: 0,
-            }));
+            await sleep(250);
+          }
 
-            const diceRoll = dice1 + dice2;
-            const newPosition = (player.position + diceRoll) % 16;
+          const property = properties.find(p => p.index === newPosition);
 
-            let currentPos = player.position;
-            while (currentPos !== newPosition) {
-              currentPos = (currentPos + 1) % 16;
-              setPlayer((prev: any) => ({
-                ...prev,
-                position: currentPos,
-              }));
-              await sleep(250);
-            }
+          if (property) {
+            if (!property.owner) {
+              const colorSet = properties.filter(p => p.color === property.color);
+              const ownedByPlayer = colorSet.filter(p => p.owner === player.name);
+              const isMonopolyPossible = ownedByPlayer.length >= colorSet.length - 1;
 
-            const property = properties.find(p => p.index === newPosition);
+              const shouldBuy =
+                player.balance >= property.price &&
+                (isMonopolyPossible || property.rent > 20 || Math.random() > 0.3);
 
-            if (property) {
-              if (!property.owner) {
-                const colorSet = properties.filter(p => p.color === property.color);
-                const ownedByPlayer = colorSet.filter(p => p.owner === player.name);
-                const isMonopolyPossible = ownedByPlayer.length >= colorSet.length - 1;
-
-                const shouldBuy =
-                  player.balance >= property.price &&
-                  (isMonopolyPossible || property.rent > 20 || Math.random() > 0.3);
-
-                if (shouldBuy) {
-                  while (player.balance < property.price) {
-                    const didMortgage = handleAIMortgage(player, setPlayer);
-                    if (!didMortgage) break;
-                  }
-
-                  if (player.balance >= property.price) {
-                    setPlayer((prev: any) => ({
-                      ...prev,
-                      balance: prev.balance - property.price,
-                      properties: [...prev.properties, property.name],
-                    }));
-                    setProperties(prev =>
-                      prev.map(p => p.name === property.name ? { ...p, owner: player.name } : p)
-                    );
-                  }
+              if (shouldBuy) {
+                while (player.balance < property.price) {
+                  const didMortgage = handleAIMortgage(player, setPlayer);
+                  if (!didMortgage) break;
                 }
-              } else if (property.owner !== player.name) {
-                // 💰 Pay Rent + TD-learning could learn from bad decisions
-                const rent = checkRent({ property });
-                const ownerObj = players.find(p => p.player.name === property.owner);
-                if (!ownerObj) continue;
 
-                const shouldPay = await fetch('http://127.0.0.1:8000/ai/td-learning', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    current_player: player,
-                    players: players.map(p => p.player),
-                    properties,
-                    rent
-                  })
-                });
+                if (player.balance >= property.price) {
+                  setPlayer((prev: any) => ({
+                    ...prev,
+                    balance: prev.balance - property.price,
+                    properties: [...prev.properties, property.name],
+                  }));
+                  setProperties(prev =>
+                    prev.map(p => p.name === property.name ? { ...p, owner: player.name } : p)
+                  );
+                }
+              }
+            } else if (property.owner !== player.name) {
+              // 💰 Pay Rent + TD-learning could learn from bad decisions
+              const rent = checkRent({ property });
+              const ownerObj = players.find(p => p.player.name === property.owner);
+              if (!ownerObj) return;
 
-                const decision = await shouldPay.json();
+              setLoading(true);
+              const shouldPay = await fetch('http://127.0.0.1:8000/ai/td-learning', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  current_player: player,
+                  players: players.map(p => p.player),
+                  properties,
+                  rent
+                })
+              });
 
-                if (decision && player.balance >= rent) {
+              const decision = await shouldPay.json();
+              setLoading(false);
+
+              if (decision && player.balance >= rent) {
+                setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
+                ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
+              } else {
+                const didMortgage = handleAIMortgage(player, setPlayer);
+                if (!didMortgage || player.balance < rent) {
+                  setPlayer((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
+                  return;
+                } else {
                   setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
                   ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
-                } else {
-                  const didMortgage = handleAIMortgage(player, setPlayer);
-                  if (!didMortgage || player.balance < rent) {
-                    setPlayer((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
-                    continue;
-                  } else {
-                    setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
-                    ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
-                  }
                 }
-              } else if (property.owner == player.name) {
-                setPlayer((prev: any) => ({
+              }
+            } else if (property.owner == player.name) {
+              setLoading(true);
+              const shouldBuild = await fetch('http://127.0.0.1:8000/ai/expectimax-building', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  current_player: player,
+                  players: players.map(p => p.player),
+                  property: property,
+                  properties: properties
+                })
+              });
+
+              const decision = await shouldBuild.json();
+
+              setLoading(false);
+
+              if (decision && player.balance >= property.OneHouseCost) {
+                setPlayer((prev:any) => ({
                   ...prev,
                   balance: prev.balance - property.OneHouseCost
                 }));
@@ -512,171 +534,177 @@ export default function Home() {
                   )
                 );
               }
-            } else if ([6, 14].includes(newPosition)) {
-              const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
-              setChanceCard(card);
-              card.functionality(player, setPlayer, players);
-            } else if ([2, 10].includes(newPosition)) {
-              const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
-              setCommunityChestCard(card);
-              card.functionality(player, setPlayer, players);
             }
-
-            continue;
+          } else if ([6, 14].includes(newPosition)) {
+            const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
+            setChanceCard(card);
+            card.functionality(player, setPlayer, players);
+          } else if ([2, 10].includes(newPosition)) {
+            const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
+            setCommunityChestCard(card);
+            card.functionality(player, setPlayer, players);
           }
-        } else if (chosen === 2 && player.balance >= 50) {
-          setPlayer((prev: any) => ({
-            ...prev,
-            balance: prev.balance - 50,
-            inJail: false,
-            turnsInJail: 0,
-          }));
-          continue;
-        } else if (chosen === 3 && player.getOutOfJailCards > 0) {
-          setPlayer((prev: any) => ({
-            ...prev,
-            getOutOfJailCards: prev.getOutOfJailCards - 1,
-            inJail: false,
-            turnsInJail: 0,
-          }));
-          continue;
-        } else {
-          continue;
+
+          return;
         }
-      }
-
-      // 🎲 Dice Roll + Expectimax-based pre-roll reasoning
-      // Simulate risk from landing on high-rent tiles
-      const riskThreshold = 150;
-      const riskyZones = properties.filter(p =>
-        p.owner && p.owner !== player.name && p.rent > riskThreshold
-      ).map(p => p.index);
-
-      const expectimaxResult = await fetch('http://127.0.0.1:8000/ai/expectimax-eval', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          current_player: player,
-          players: players.map(p => p.player),
-          properties: properties
-        })
-      });
-
-      const expectedLoss = await expectimaxResult.json();
-
-      if (expectedLoss > 100 && player.balance < 200) {
-        handleAIMortgage(player, setPlayer);
-      }
-
-      setVisible(true);
-      let rollInterval;
-
-      rollInterval = setInterval(() => {
-        setDiceValues([
-          Math.floor(Math.random() * 6) + 1,
-          Math.floor(Math.random() * 6) + 1,
-        ]);
-      }, 100);
-
-      await sleep(1500);
-      clearInterval(rollInterval);
-
-      const dice1 = Math.floor(Math.random() * 6) + 1;
-      const dice2 = Math.floor(Math.random() * 6) + 1;
-      setDiceValues([dice1, dice2]);
-      await sleep(1000);
-      setVisible(false);
-
-      const diceRoll = dice1 + dice2;
-      const newPosition = (player.position + diceRoll) % 16;
-
-      let currentPos = player.position;
-      while (currentPos !== newPosition) {
-        currentPos = (currentPos + 1) % 16;
+      } else if (chosen === 2 && player.balance >= 50) {
         setPlayer((prev: any) => ({
           ...prev,
-          position: currentPos,
+          balance: prev.balance - 50,
+          inJail: false,
+          turnsInJail: 0,
         }));
-        await sleep(250);
+        return;
+      } else if (chosen === 3 && player.getOutOfJailCards > 0) {
+        setPlayer((prev: any) => ({
+          ...prev,
+          getOutOfJailCards: prev.getOutOfJailCards - 1,
+          inJail: false,
+          turnsInJail: 0,
+        }));
+        return;
+      } else {
+        return;
       }
+    }
 
-      const property = properties.find(p => p.index === newPosition);
+    // 🎲 Dice Roll + Expectimax-based pre-roll reasoning
+    // Simulate risk from landing on high-rent tiles
+    const riskThreshold = 150;
+    const riskyZones = properties.filter(p =>
+      p.owner && p.owner !== player.name && p.rent > riskThreshold
+    ).map(p => p.index);
 
-      if (property) {
-        if (!property.owner) {
+    setLoading(true);
+    const expectimaxResult = await fetch('http://127.0.0.1:8000/ai/expectimax-eval', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        current_player: player,
+        players: players.map(p => p.player),
+        properties: properties
+      })
+    });
 
-          const response = await fetch('http://127.0.0.1:8000/ai/ucb1', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              current_player: player,
-              players: players.map(p => p.player),
-              properties,
-              property_to_consider: property
-            })
-          });
+    const expectedLoss = await expectimaxResult.json();
 
-          const shouldBuy = await response.json();
+    setLoading(false);
 
-          if (shouldBuy) {
-            while (player.balance < property.price) {
-              const didMortgage = handleAIMortgage(player, setPlayer);
-              if (!didMortgage) break;
-            }
+    if (expectedLoss > 100 && player.balance < 200) {
+      handleAIMortgage(player, setPlayer);
+    }
 
-            if (player.balance >= property.price) {
-              setPlayer((prev: any) => ({
-                ...prev,
-                balance: prev.balance - property.price,
-                properties: [...prev.properties, property.name],
-              }));
-              setProperties(prev =>
-                prev.map(p => p.name === property.name ? { ...p, owner: player.name } : p)
-              );
-            }
-          }
-        } else if (property.owner !== player.name) {
-          // Pay Rent + TD-learning could learn from bad decisions
-          const rent = checkRent({ property });
-          const ownerObj = players.find(p => p.player.name === property.owner);
-          if (!ownerObj) continue;
+    setVisible(true);
+    let rollInterval;
 
-          while (player.balance < rent) {
+    rollInterval = setInterval(() => {
+      setDiceValues([
+        Math.floor(Math.random() * 6) + 1,
+        Math.floor(Math.random() * 6) + 1,
+      ]);
+    }, 100);
+
+    await sleep(1500);
+    clearInterval(rollInterval);
+
+    const dice1 = Math.floor(Math.random() * 6) + 1;
+    const dice2 = Math.floor(Math.random() * 6) + 1;
+    setDiceValues([dice1, dice2]);
+    await sleep(1000);
+    setVisible(false);
+
+    const diceRoll = dice1 + dice2;
+    const newPosition = (player.position + diceRoll) % 16;
+
+    let currentPos = player.position;
+    while (currentPos !== newPosition) {
+      currentPos = (currentPos + 1) % 16;
+      setPlayer((prev: any) => ({
+        ...prev,
+        position: currentPos,
+      }));
+      await sleep(250);
+    }
+
+    const property = properties.find(p => p.index === newPosition);
+
+    if (property) {
+      if (!property.owner) {
+
+        setLoading(true);
+        const response = await fetch('http://127.0.0.1:8000/ai/ucb1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            current_player: player,
+            players: players.map(p => p.player),
+            properties,
+            property_to_consider: property
+          })
+        });
+
+        const shouldBuy = await response.json();
+
+        setLoading(false);
+
+        if (shouldBuy) {
+          while (player.balance < property.price) {
             const didMortgage = handleAIMortgage(player, setPlayer);
             if (!didMortgage) break;
           }
 
-          if (player.balance >= rent) {
-            setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
-            ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
-          } else {
-            setPlayer((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
+          if (player.balance >= property.price) {
+            setPlayer((prev: any) => ({
+              ...prev,
+              balance: prev.balance - property.price,
+              properties: [...prev.properties, property.name],
+            }));
+            setProperties(prev =>
+              prev.map(p => p.name === property.name ? { ...p, owner: player.name } : p)
+            );
           }
-        } else if (property.owner == player.name) {
-          setPlayer((prev: any) => ({
-            ...prev,
-            balance: prev.balance - property.OneHouseCost
-          }));
-
-          setProperties(prev =>
-            prev.map(p =>
-              p.name === property.name ? { ...p, houses: p.houses + 1 } : p
-            )
-          );
         }
-      } else if ([6, 14].includes(newPosition)) {
-        const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
-        setChanceCard(card);
-        card.functionality(player, setPlayer, players);
-      } else if ([2, 10].includes(newPosition)) {
-        const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
-        setCommunityChestCard(card);
-        card.functionality(player, setPlayer, players);
-      }
+      } else if (property.owner !== player.name) {
+        // Pay Rent + TD-learning could learn from bad decisions
+        const rent = checkRent({ property });
+        const ownerObj = players.find(p => p.player.name === property.owner);
+        if (!ownerObj) return;
 
-      nextTurn();
-      await sleep(800);
+        while (player.balance < rent) {
+          const didMortgage = handleAIMortgage(player, setPlayer);
+          if (!didMortgage) break;
+        }
+
+        if (player.balance >= rent) {
+          setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
+          ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
+        } else {
+          setPlayer((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
+        }
+      } else if (property.owner == player.name) {
+        setPlayer((prev: any) => ({
+          ...prev,
+          balance: prev.balance - property.OneHouseCost
+        }));
+
+        setProperties(prev =>
+          prev.map(p =>
+            p.name === property.name ? { ...p, houses: p.houses + 1 } : p
+          )
+        );
+      }
+    } else if ([6, 14].includes(newPosition)) {
+      const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
+      setChanceCard(card);
+      card.functionality(player, setPlayer, players);
+    } else if ([2, 10].includes(newPosition)) {
+      const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
+      setCommunityChestCard(card);
+      card.functionality(player, setPlayer, players);
     }
+
+    nextTurn();
+    await sleep(800);
   };
 
   const breakOutOfJail = (method: string) => {
@@ -694,13 +722,26 @@ export default function Home() {
   }
 
   const generateScenario = () => {
+    const allProperties = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"];
+
+    const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
+
+    const randomProperties = shuffle(allProperties);
+    const player1Properties = randomProperties.slice(0, 4);
+    const player2Properties = randomProperties.slice(4, 8);
+
+    const randomBalance1 = () => Math.floor(Math.random() * 1200) + 300; // 100–1100
+    const randomBalance2 = () => Math.floor(Math.random() * 1200) + 300; // 100–1100
+
+    const randomHouses = () => Math.floor(Math.random() * 3); // 0–4 houses
+
     setPlayer1({
       ...initialStats,
       name: "Player 1",
       avatar: "avatar_1.png",
-      balance: 1011,
-      position: 0,
-      properties: ["P1", "P7", "P3", "P4"],
+      balance: randomBalance1(),
+      position: Math.floor(Math.random() * 10),
+      properties: player1Properties,
       houses: {},
       inJail: false,
       bankrupt: false,
@@ -710,9 +751,9 @@ export default function Home() {
       ...initialStats,
       name: "Player 2",
       avatar: "avatar_2.png",
-      balance: 260,
-      position: 2,
-      properties: ["P8", "P2", "P5", "P6"],
+      balance: randomBalance2(),
+      position: Math.floor(Math.random() * 10),
+      properties: player2Properties,
       houses: {},
       inJail: false,
       bankrupt: false,
@@ -720,11 +761,8 @@ export default function Home() {
 
     setProperties((prev: any) =>
       prev.map((p: any) => {
-        if (["P7"].includes(p.name)) return { ...p, owner: "Player 1", houses: 3 };
-        if (["P3"].includes(p.name)) return { ...p, owner: "Player 1", houses: 1 };
-        if (["P4"].includes(p.name)) return { ...p, owner: "Player 1", houses: 2 };
-        if (["P1"].includes(p.name)) return { ...p, owner: "Player 1", houses: 0 };
-        if (["P8", "P2", "P5", "P6"].includes(p.name)) return { ...p, owner: "Player 2", houses: 0 };
+        if (player1Properties.includes(p.name)) return { ...p, owner: "Player 1", houses: randomHouses() };
+        if (player2Properties.includes(p.name)) return { ...p, owner: "Player 2", houses: randomHouses() };
         return { ...p, owner: null, houses: 0 };
       })
     );
@@ -736,7 +774,6 @@ export default function Home() {
 
   const startGame = () => {
     setGameStarted(true);
-    if (currentPlayerIndex === 1) loopingGame();
   };
 
 
@@ -772,10 +809,6 @@ export default function Home() {
         <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => rollDice()}>
           <Image src={'/dice.png'} alt="money" className="h-[100px] w-[100px]" height={200} width={200} />
           <p className="text-[20px] text-white font-semibold">Roll</p>
-        </div>
-        <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => repayMortgage(player1, setPlayer1, 'P1')}>
-          <Image src={'/House.png'} alt="money" className="h-[60px] w-[60px]" height={200} width={200} />
-          <p className="text-[20px] text-white font-semibold">Repay</p>
         </div>
       </div>
       <div className="flex gap-6 mt-6">
@@ -988,9 +1021,8 @@ export default function Home() {
           </AlertDialogContent>
         </AlertDialog>
       )}
-      <Button onClick={loopingGame}>Start</Button>
       {visible && (
-        <div className="flex flex-row justify-center absolute top-145 items-center gap-3 p-5 bg-gradient-to-b from-amber-600 to-amber-400 rounded-lg">
+        <div className="flex flex-row justify-center absolute top-120 items-center gap-3 p-5 bg-gradient-to-b from-amber-600 to-amber-400 rounded-lg">
           <Image
             src={`/dice/${diceValues[0]}.jpeg`}
             alt="dice"
@@ -1002,6 +1034,17 @@ export default function Home() {
             src={`/dice/${diceValues[1]}.jpeg`}
             alt="dice"
             className="h-[75px] w-[75px] rounded-md"
+            height={150}
+            width={150}
+          />
+        </div>
+      )}
+      {loading && (
+        <div className="flex flex-row justify-center absolute top-120 items-center gap-3 p-5 bg-gradient-to-b from-amber-600 to-amber-400 rounded-lg">
+          <Image
+            src={`/hourglass.png`}
+            alt="hourglass"
+            className="h-[75px] w-[75px] rounded-md animate-spin"
             height={150}
             width={150}
           />

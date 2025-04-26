@@ -38,7 +38,7 @@ def generate_dummy_properties():
             "mortgaged": False,
             "color": random.choice(colors)
         }
-        for i in range(24)
+        for i in range(16)
     ]
 
 async def main():
