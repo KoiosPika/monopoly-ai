@@ -12,8 +12,8 @@ class PlayerModel(BaseModel):
     inJail: bool
     getOutOfJailCards: int
     turnsInJail: int
-    mortgagedProperties: List[str]
     bankrupt: bool
+    skipTurnCount: int
 
 
 class PropertyModel(BaseModel):
@@ -58,6 +58,7 @@ class MCTSRequest(BaseModel):
     current_player: PlayerModel
     players: List[PlayerModel]
     properties: List[PropertyModel]
+    jail_options: List[str]
 
 class BuildHouseRequest(BaseModel):
     current_player: PlayerModel

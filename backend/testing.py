@@ -2,7 +2,6 @@ import random
 from algos.Josh import run_mcts_for_jail_decision
 from algos.Omar import run_td_learning_for_pay_rent_decision
 from algos.utils import run_ucb1_for_buying_decision, run_expectimax_for_roll_decision
-from algos.utils import run_heurisitc_search_choose_property_to_mortgage
 import asyncio
 
 def generate_dummy_player(name="Player 1"):
@@ -83,18 +82,6 @@ async def main():
             print(f"UCB1 says 'BUY' for {property_to_consider['name']}")
         else:
             print(f"UCB1 says 'SKIP' for {property_to_consider['name']}")
-
-    elif choice == "5":
-        print("Testing Heuristic (mortgage decision)...")
-        for p in properties[:3]:
-            p["owner"] = current_player["name"]
-            current_player["properties"].append(p["name"])
-
-        prop_to_mortgage = await run_heurisitc_search_choose_property_to_mortgage(current_player, players, properties)
-        if prop_to_mortgage:
-            print(f"Heuristic suggests mortgaging: {prop_to_mortgage['name']}")
-        else:
-            print("No suitable property to mortgage.")
 
     else:
         print("Invalid choice.")

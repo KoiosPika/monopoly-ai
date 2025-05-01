@@ -24,8 +24,8 @@ const initialStats = {
   inJail: false,
   getOutOfJailCards: 0,
   turnsInJail: 0,
-  mortgagedProperties: [],
   bankrupt: false,
+  skipTurnCount: 3
 }
 
 export default function Home() {
@@ -34,16 +34,17 @@ export default function Home() {
   const [player2, setPlayer2] = useState<any>({ ...initialStats, name: "Player 2", avatar: 'avatar_2.png' });
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [turn, setTurn] = useState(1);
   const [diceValues, setDiceValues] = useState([1, 1]);
   const [properties, setProperties] = useState([
-    { name: "P1", index: 1, price: 100, rent: 10, rentOneHouse: 20, rentTwoHouses: 30, rentThreeHouses: 40, OneHouseCost: 60, houses: 0, owner: null, mortgaged: false, color: '#2acb1a' },
-    { name: "P2", index: 3, price: 150, rent: 20, rentOneHouse: 40, rentTwoHouses: 60, rentThreeHouses: 80, OneHouseCost: 90, houses: 0, owner: null, mortgaged: false, color: '#2365d9' },
-    { name: "P3", index: 5, price: 200, rent: 40, rentOneHouse: 80, rentTwoHouses: 120, rentThreeHouses: 160, OneHouseCost: 120, houses: 0, owner: null, mortgaged: false, color: '#FF69B4' },
-    { name: "P4", index: 7, price: 250, rent: 60, rentOneHouse: 120, rentTwoHouses: 180, rentThreeHouses: 240, OneHouseCost: 150, houses: 0, owner: null, mortgaged: false, color: '#FFA500' },
-    { name: "P5", index: 9, price: 160, rent: 23, rentOneHouse: 45, rentTwoHouses: 70, rentThreeHouses: 90, OneHouseCost: 95, houses: 0, owner: null, mortgaged: false, color: '#a84ecf' },
-    { name: "P6", index: 11, price: 110, rent: 12, rentOneHouse: 25, rentTwoHouses: 35, rentThreeHouses: 50, OneHouseCost: 65, houses: 0, owner: null, mortgaged: false, color: '#2acb1a' },
-    { name: "P7", index: 13, price: 260, rent: 65, rentOneHouse: 130, rentTwoHouses: 195, rentThreeHouses: 260, OneHouseCost: 155, houses: 0, owner: null, mortgaged: false, color: '#FFA500' },
-    { name: "P8", index: 15, price: 210, rent: 44, rentOneHouse: 90, rentTwoHouses: 130, rentThreeHouses: 175, OneHouseCost: 125, houses: 0, owner: null, mortgaged: false, color: '#FF69B4' },
+    { name: "P1", index: 1, price: 100, rent: 10, rentOneHouse: 20, rentTwoHouses: 30, rentThreeHouses: 40, OneHouseCost: 60, houses: 0, owner: null, color: '#2acb1a', mortgaged: false },
+    { name: "P2", index: 3, price: 150, rent: 20, rentOneHouse: 40, rentTwoHouses: 60, rentThreeHouses: 80, OneHouseCost: 90, houses: 0, owner: null, color: '#2365d9', mortgaged: false },
+    { name: "P3", index: 5, price: 200, rent: 40, rentOneHouse: 80, rentTwoHouses: 120, rentThreeHouses: 160, OneHouseCost: 120, houses: 0, owner: null, color: '#FF69B4', mortgaged: false },
+    { name: "P4", index: 7, price: 250, rent: 60, rentOneHouse: 120, rentTwoHouses: 180, rentThreeHouses: 240, OneHouseCost: 150, houses: 0, owner: null, color: '#FFA500', mortgaged: false },
+    { name: "P5", index: 9, price: 160, rent: 23, rentOneHouse: 45, rentTwoHouses: 70, rentThreeHouses: 90, OneHouseCost: 95, houses: 0, owner: null, color: '#a84ecf', mortgaged: false },
+    { name: "P6", index: 11, price: 110, rent: 12, rentOneHouse: 25, rentTwoHouses: 35, rentThreeHouses: 50, OneHouseCost: 65, houses: 0, owner: null, color: '#2acb1a', mortgaged: false },
+    { name: "P7", index: 13, price: 260, rent: 65, rentOneHouse: 130, rentTwoHouses: 195, rentThreeHouses: 260, OneHouseCost: 155, houses: 0, owner: null, color: '#FFA500', mortgaged: false },
+    { name: "P8", index: 15, price: 210, rent: 44, rentOneHouse: 90, rentTwoHouses: 130, rentThreeHouses: 175, OneHouseCost: 125, houses: 0, owner: null, color: '#FF69B4', mortgaged: false },
   ]);
 
   const [landedProperty, setLandedProperty] = useState<any>(null);
@@ -63,25 +64,10 @@ export default function Home() {
 
   const currentPlayer = players[currentPlayerIndex].player;
 
-  useEffect(() => {
-    const player = players[currentPlayerIndex];
-
-    if ((player as any).bankrupt) {
-      nextTurn();
-    }
-  }, [currentPlayerIndex]);
-
   const rollDice = () => {
-    const player = players[currentPlayerIndex].player;
-    const setPlayer =
-      player.name === "Player 1"
-        ? setPlayer1
-        : setPlayer2;
+    const player = player1;
+    const setPlayer = setPlayer1
 
-    if (player.bankrupt) {
-      nextTurn();
-      return;
-    }
     setVisible(true);
 
     const rollingInterval = setInterval(() => {
@@ -140,6 +126,14 @@ export default function Home() {
             const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
             setChanceCard(card)
             card.functionality(player, setPlayer, players);
+          } else if (newPosition == 12) {
+            setPlayer((prev: any) => ({
+              ...prev,
+              inJail: true,
+              position: 4,
+              turnsInJail: 0,
+            }));
+            setinJailDialog(false)
           }
         }
       }, 250);
@@ -147,6 +141,7 @@ export default function Home() {
   };
 
   const nextTurn = () => {
+    setTurn((prev) => (prev + 1));
     setinJailDialog(true)
     setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
   };
@@ -210,32 +205,6 @@ export default function Home() {
     setBankruptcyModal(null);
   };
 
-  const mortgageProperty = (landedProperty: any) => {
-    const player = landedProperty.player;
-    const setPlayer = landedProperty.setPlayer;
-
-    if (player.properties.length === 0) return; // No properties to mortgage
-
-    // Find the first non-mortgaged property
-    const propertyToMortgage = player.properties.find((prop: any) => !prop.mortgaged);
-
-    if (!propertyToMortgage) return; // No available property
-
-    setPlayer((prev: any) => ({
-      ...prev,
-      balance: prev.balance + (propertyToMortgage.price / 2), // Get half the property price
-      mortgagedProperties: [...prev.mortgagedProperties, propertyToMortgage.name], // Add to mortgaged list
-    }));
-
-    setProperties(prev =>
-      prev.map(p =>
-        p.name === propertyToMortgage.name ? { ...p, mortgaged: true } : p
-      )
-    );
-
-    setLandedProperty(null);
-  };
-
   const sellProperty = (landedProperty: any) => {
     const player = landedProperty.player;
     const setPlayer = landedProperty.setPlayer;
@@ -262,38 +231,10 @@ export default function Home() {
     setLandedProperty(null);
   };
 
-  const repayMortgage = (player: any, setPlayer: any, property: any) => {
-    const repaymentCost = property.mortgageValue * 1.1; // Mortgage value + 10% interest
-
-    if (player.balance >= repaymentCost) {
-      setPlayer((prev: any) => ({
-        ...prev,
-        balance: prev.balance - repaymentCost,
-        mortgagedProperties: prev.mortgagedProperties.filter((p: any) => p !== property.name), // Remove from mortgaged list
-      }));
-
-      // Update property to be un-mortgaged
-      setProperties(prev =>
-        prev.map(p =>
-          p.name === property.name ? { ...p, mortgaged: false } : p
-        )
-      );
-    } else {
-      alert("Not enough money to repay the mortgage!");
-    }
-  };
-
   const upgradeProperty = (player: any, setPlayer: any, property: any) => {
     if (!property || !player) return;
 
     // Check if the player owns all properties of this color
-    const sameColorProperties = properties.filter((p: any) => p.color === property.color);
-    const ownsAll = sameColorProperties.every(p => p.owner === player.name);
-
-    if (!ownsAll) {
-      alert("You must own all properties of this color to build houses!");
-      return;
-    }
 
     if (property.houses >= 3) {
       alert("You can't build more than 3 houses on a property!");
@@ -327,40 +268,6 @@ export default function Home() {
     }
   }
 
-  const handleAIMortgage = async (player: any, setPlayer: any) => {
-    setLoading(true);
-    const response = await fetch('http://127.0.0.1:8000/ai/heuristic-mortgage', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        current_player: player,
-        players: players.map(p => p.player),
-        properties
-      })
-    });
-
-    const propToMortgage = await response.json();
-    setLoading(false);
-
-    if (!propToMortgage) return false;
-
-    setPlayer((prev: any) => ({
-      ...prev,
-      balance: prev.balance + propToMortgage.price / 2,
-      mortgagedProperties: [...prev.mortgagedProperties, propToMortgage.name]
-    }));
-
-    setProperties(prev =>
-      prev.map(p =>
-        p.name === propToMortgage.name ? { ...p, mortgaged: true } : p
-      )
-    );
-
-    return true;
-  };
-
   const handleEndTurn = (player: number) => {
     if (player == 1) {
       nextTurn()
@@ -377,8 +284,16 @@ export default function Home() {
     if (player.bankrupt) return;
 
     if (player.inJail) {
-      const jailOptions = ['rollDouble', 'payFine', 'useCard'];
+      const jailOptions = [];
+
+      if (player.turnsInJail < 3) jailOptions.push('rollDouble');
+      if (player.balance >= 50) jailOptions.push('payFine');
+      if (player.getOutOfJailCards > 0) jailOptions.push('useCard');
+
       setLoading(true);
+      setinJailDialog(false)
+      await sleep(2000);
+
       const result = await fetch('http://127.0.0.1:8000/ai/mcts', {
         method: 'POST',
         headers: {
@@ -387,7 +302,8 @@ export default function Home() {
         body: JSON.stringify({
           current_player: player,
           players: players.map(p => p.player),
-          properties: properties
+          properties: properties,
+          jail_options: jailOptions
         })
       });
 
@@ -397,6 +313,7 @@ export default function Home() {
       await sleep(500);
 
       if (chosen === 1) {
+        setinJailDialog(false);
         setVisible(true);
         let intervalId;
 
@@ -455,10 +372,6 @@ export default function Home() {
                 (isMonopolyPossible || property.rent > 20 || Math.random() > 0.3);
 
               if (shouldBuy) {
-                while (player.balance < property.price) {
-                  const didMortgage = handleAIMortgage(player, setPlayer);
-                  if (!didMortgage) break;
-                }
 
                 if (player.balance >= property.price) {
                   setPlayer((prev: any) => ({
@@ -495,15 +408,6 @@ export default function Home() {
               if (decision && player.balance >= rent) {
                 setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
                 ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
-              } else {
-                const didMortgage = handleAIMortgage(player, setPlayer);
-                if (!didMortgage || player.balance < rent) {
-                  setPlayer((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
-                  return;
-                } else {
-                  setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
-                  ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
-                }
               }
             } else if (property.owner == player.name) {
               setLoading(true);
@@ -523,7 +427,7 @@ export default function Home() {
               setLoading(false);
 
               if (decision && player.balance >= property.OneHouseCost) {
-                setPlayer((prev:any) => ({
+                setPlayer((prev: any) => ({
                   ...prev,
                   balance: prev.balance - property.OneHouseCost
                 }));
@@ -543,11 +447,20 @@ export default function Home() {
             const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
             setCommunityChestCard(card);
             card.functionality(player, setPlayer, players);
+          } else if (newPosition == 12) {
+            setPlayer((prev: any) => ({
+              ...prev,
+              inJail: true,
+              position: 4,
+              turnsInJail: 0,
+            }));
+            setinJailDialog(false)
           }
 
           return;
         }
       } else if (chosen === 2 && player.balance >= 50) {
+        setinJailDialog(false);
         setPlayer((prev: any) => ({
           ...prev,
           balance: prev.balance - 50,
@@ -556,6 +469,7 @@ export default function Home() {
         }));
         return;
       } else if (chosen === 3 && player.getOutOfJailCards > 0) {
+        setinJailDialog(false);
         setPlayer((prev: any) => ({
           ...prev,
           getOutOfJailCards: prev.getOutOfJailCards - 1,
@@ -564,35 +478,40 @@ export default function Home() {
         }));
         return;
       } else {
+        setinJailDialog(false);
         return;
       }
     }
 
-    // 🎲 Dice Roll + Expectimax-based pre-roll reasoning
-    // Simulate risk from landing on high-rent tiles
-    const riskThreshold = 150;
-    const riskyZones = properties.filter(p =>
-      p.owner && p.owner !== player.name && p.rent > riskThreshold
-    ).map(p => p.index);
 
-    setLoading(true);
-    const expectimaxResult = await fetch('http://127.0.0.1:8000/ai/expectimax-eval', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        current_player: player,
-        players: players.map(p => p.player),
-        properties: properties
-      })
-    });
+    if (player.skipTurnCount > 0) {
+      setLoading(true);
+      const expectimaxResult = await fetch('http://127.0.0.1:8000/ai/expectimax-eval', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          current_player: player,
+          players: players.map(p => p.player),
+          properties: properties
+        })
+      });
 
-    const expectedLoss = await expectimaxResult.json();
+      const expectedLoss = await expectimaxResult.json();
 
-    setLoading(false);
+      if (expectedLoss < 300) {
 
-    if (expectedLoss > 100 && player.balance < 200) {
-      handleAIMortgage(player, setPlayer);
+        setPlayer((prev: any) => ({
+          ...prev,
+          skipTurnCount: prev.skipTurnCount - 1,
+        }));
+
+        setLoading(false);
+        return;
+      }
+
+      setLoading(false);
     }
+
 
     setVisible(true);
     let rollInterval;
@@ -648,10 +567,6 @@ export default function Home() {
         setLoading(false);
 
         if (shouldBuy) {
-          while (player.balance < property.price) {
-            const didMortgage = handleAIMortgage(player, setPlayer);
-            if (!didMortgage) break;
-          }
 
           if (player.balance >= property.price) {
             setPlayer((prev: any) => ({
@@ -670,11 +585,6 @@ export default function Home() {
         const ownerObj = players.find(p => p.player.name === property.owner);
         if (!ownerObj) return;
 
-        while (player.balance < rent) {
-          const didMortgage = handleAIMortgage(player, setPlayer);
-          if (!didMortgage) break;
-        }
-
         if (player.balance >= rent) {
           setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
           ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
@@ -682,16 +592,34 @@ export default function Home() {
           setPlayer((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
         }
       } else if (property.owner == player.name) {
-        setPlayer((prev: any) => ({
-          ...prev,
-          balance: prev.balance - property.OneHouseCost
-        }));
+        setLoading(true);
+        const shouldBuild = await fetch('http://127.0.0.1:8000/ai/expectimax-building', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            current_player: player,
+            players: players.map(p => p.player),
+            property: property,
+            properties: properties
+          })
+        });
 
-        setProperties(prev =>
-          prev.map(p =>
-            p.name === property.name ? { ...p, houses: p.houses + 1 } : p
-          )
-        );
+        const decision = await shouldBuild.json();
+
+        setLoading(false);
+
+        if (decision && player.balance >= property.OneHouseCost) {
+          setPlayer((prev: any) => ({
+            ...prev,
+            balance: prev.balance - property.OneHouseCost
+          }));
+
+          setProperties(prev =>
+            prev.map(p =>
+              p.name === property.name ? { ...p, houses: p.houses + 1 } : p
+            )
+          );
+        }
       }
     } else if ([6, 14].includes(newPosition)) {
       const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
@@ -701,6 +629,14 @@ export default function Home() {
       const card = communityChestCards[Math.floor(Math.random() * communityChestCards.length)];
       setCommunityChestCard(card);
       card.functionality(player, setPlayer, players);
+    } else if (newPosition == 12) {
+      setPlayer((prev: any) => ({
+        ...prev,
+        inJail: true,
+        position: 4,
+        turnsInJail: 0,
+      }));
+      setinJailDialog(false)
     }
 
     nextTurn();
@@ -711,7 +647,6 @@ export default function Home() {
     const player = players.filter(player => player.player.name === currentPlayer.name)
 
     if (method == 'rollDouble') {
-      console.log('here')
       setinJailDialog(false)
       rollDice()
     } else if (method == 'payFine') {
@@ -722,16 +657,23 @@ export default function Home() {
   }
 
   const generateScenario = () => {
-    const allProperties = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"];
-
+    const allProperties = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"];
     const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
+    const shuffledProperties = shuffle(allProperties);
 
-    const randomProperties = shuffle(allProperties);
-    const player1Properties = randomProperties.slice(0, 4);
-    const player2Properties = randomProperties.slice(4, 8);
+    // Random number of total owned properties: between 2 and 7 (leaving some unowned)
+    const totalOwned = Math.floor(Math.random() * 6) + 2;
 
-    const randomBalance1 = () => Math.floor(Math.random() * 1200) + 300; // 100–1100
-    const randomBalance2 = () => Math.floor(Math.random() * 1200) + 300; // 100–1100
+    const ownedProperties = shuffledProperties.slice(0, totalOwned);
+    const unownedProperties = shuffledProperties.slice(totalOwned);
+
+    // Randomly decide how many of the owned properties go to Player 1
+    const player1Count = Math.floor(Math.random() * totalOwned);
+    const player1Properties = ownedProperties.slice(0, player1Count);
+    const player2Properties = ownedProperties.slice(player1Count);
+
+    const randomBalance1 = () => Math.floor(Math.random() * 400) + 1600; // 800–1200
+    const randomBalance2 = () => Math.floor(Math.random() * 400) + 1600; // 800–1200
 
     const randomHouses = () => Math.floor(Math.random() * 3); // 0–4 houses
 
@@ -779,9 +721,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 pb-10 gap-10 sm:p-20 font-[family-name:var(--font-geist-sans)]" style={{ backgroundImage: 'url(/bg.jpg)' }}>
+      <div>
+          {/* current turn */}
+          <div className="text-[30px] font-bold">{turn}</div>
+        </div>
       <div className="flex flex-row justify-center items-center py-2 rounded-lg gap-3 relative">
         <div className="absolute top-10 left-[-370px] flex flex-col justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[175px] w-[175px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }}>
-          <p className="text-white font-semibold text-[20px]">Current Turn</p>
+          <p className="text-white font-semibold text-[20px]">Player Turn</p>
           <Image src={`/${currentPlayer.avatar}`} alt="avatar" height={75} width={75} />
           <p className="text-white font-semibold text-[20px]">{currentPlayer.name}</p>
         </div>
@@ -825,7 +771,6 @@ export default function Home() {
       </div>
       {(landedProperty && !landedProperty.property.owner) &&
         <AlertDialog open={true} onOpenChange={() => setLandedProperty(null)}>
-          <AlertDialogTrigger>g</AlertDialogTrigger>
           <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
             <AlertDialogHeader>
               <AlertDialogTitle className="bg-yellow-400 text-black w-[180px] text-[25px] font-bold text-center rounded-md">{landedProperty.property.name} is for sale</AlertDialogTitle>
@@ -844,10 +789,6 @@ export default function Home() {
                   <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
                 </div>
                 <p>---------------------------</p>
-                <div className="flex flex-row justify-around items-center w-full my-1">
-                  <p className="w-1/2 text-center">Mortgage Value</p>
-                  <p className="w-1/2 text-center">$200</p>
-                </div>
                 <div className="flex flex-row justify-around items-center w-full">
                   <p className="w-1/2 text-center">One House Cost</p>
                   <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
@@ -934,10 +875,6 @@ export default function Home() {
                   <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
                 </div>
                 <p>---------------------------</p>
-                <div className="flex flex-row justify-around items-center w-full my-1">
-                  <p className="w-1/2 text-center">Mortgage Value</p>
-                  <p className="w-1/2 text-center">$200</p>
-                </div>
                 <div className="flex flex-row justify-around items-center w-full">
                   <p className="w-1/2 text-center">One House Cost</p>
                   <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
@@ -973,10 +910,6 @@ export default function Home() {
                   <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
                 </div>
                 <p>---------------------------</p>
-                <div className="flex flex-row justify-around items-center w-full my-1">
-                  <p className="w-1/2 text-center">Mortgage Value</p>
-                  <p className="w-1/2 text-center">$200</p>
-                </div>
                 <div className="flex flex-row justify-around items-center w-full">
                   <p className="w-1/2 text-center">One House Cost</p>
                   <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
@@ -1004,20 +937,6 @@ export default function Home() {
                 {bankruptcyModal.tenant.name} does not have enough money to pay rent of ${bankruptcyModal.rentAmount} to {bankruptcyModal.owner.name}.
               </div>
             </AlertDialogHeader>
-            {landedProperty.player.properties.length > 0 ? (
-              <>
-                <AlertDialogAction className="bg-blue-500 text-white text-[16px]" onClick={() => mortgageProperty(landedProperty)}>
-                  Mortgage a Property
-                </AlertDialogAction>
-                <AlertDialogAction className="bg-yellow-500 text-white text-[16px]" onClick={() => sellProperty(landedProperty)}>
-                  Sell a Property
-                </AlertDialogAction>
-              </>
-            ) : (
-              <AlertDialogAction className="bg-red-500 text-white text-[16px]" onClick={() => declareBankruptcy(landedProperty.player)}>
-                Declare Bankruptcy
-              </AlertDialogAction>
-            )}
           </AlertDialogContent>
         </AlertDialog>
       )}

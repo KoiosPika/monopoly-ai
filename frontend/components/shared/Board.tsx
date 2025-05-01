@@ -4,13 +4,13 @@ import React from 'react';
 // Function to get color based on property type
 const getColor = (cell: string) => {
     const colorMap: Record<string, string> = {
-        'P1': 'bg-[#2acb1a]', 'P6': 'bg-[#2acb1a]', // Green
-        'P2': 'bg-[#2365d9]',// Blue
-        'P3': 'bg-[#FF69B4]', 'P8': 'bg-[#FF69B4]',// Pink
-        'P4': 'bg-[#FFA500]', 'P7': 'bg-[#FFA500]',// Orange
-        'P5': 'bg-[#a84ecf]',// Purple
-        'Chance': 'bg-[#A9A9A9]', 'Community Chest': 'bg-[#A9A9A9]', // Dark Gray
-        'Go': 'bg-[#e34b30]', 'Jail': 'bg-[#e34b30]', 'Free Parking': 'bg-[#e34b30]', 'Go To Jail': 'bg-[#e34b30]'
+        'P1': 'bg-gradient-to-l from-green-500 to-green-700', 'P6': 'bg-gradient-to-l from-green-500 to-green-700', // Green
+        'P2': 'bg-gradient-to-l from-blue-500 to-blue-700',// Blue
+        'P3': 'bg-gradient-to-l from-pink-500 to-pink-700', 'P8': 'bg-gradient-to-l from-pink-500 to-pink-700',// Pink
+        'P4': 'bg-gradient-to-l from-yellow-400 to-yellow-600', 'P7': 'bg-gradient-to-l from-yellow-400 to-yellow-600',// Orange
+        'P5': 'bg-gradient-to-l from-purple-500 to-purple-700',// Purple
+        'Chance': 'bg-gradient-to-l from-gray-400 to-gray-500', 'Community Chest': 'bg-gradient-to-l from-gray-400 to-gray-500', // Dark Gray
+        'Go': 'bg-gradient-to-l from-red-500 to-red-600', 'Jail': 'bg-gradient-to-l from-red-500 to-red-600', 'Free Parking': 'bg-gradient-to-l from-red-500 to-red-600', 'Go To Jail': 'bg-gradient-to-l from-red-500 to-red-600'
     };
     return colorMap[cell] || 'bg-white';
 };
@@ -23,7 +23,7 @@ const Board = ({ players, properties }: { players: any, properties: any }) => {
     const positionClasses = ["top-1 left-1", "top-1 right-1", "bottom-1 left-1", "bottom-1 right-1"];
 
     return (
-        <div className="h-[600px] w-[600px] border-2 border-black flex flex-col justify-center items-center bg-[#cde6d0] font-bold text-center relative">
+        <div className="h-[600px] w-[600px] border-2 border-black flex flex-col justify-center items-center font-bold text-center relative text-[18px]">
 
             {/* Top Row */}
             <div className="flex flex-row justify-center items-center w-full">
@@ -32,7 +32,7 @@ const Board = ({ players, properties }: { players: any, properties: any }) => {
                         player.player.properties.some((property: any) => property === cell.name)
                     );
                     return (
-                        <div key={index} className={`relative flex justify-center items-center border-black border w-[120px] h-[120px] ${getColor(cell.name)}`}>
+                        <div key={index} className={`relative flex justify-center items-center border-black border w-[120px] h-[120px] p-[5px] ${getColor(cell.name)}`}>
                             {cell.name}
                             {owner && (
                                 <p className={`absolute top-[-30px] ${getColor(cell.name)} w-[110px] text-center rounded-md px-1`}>
@@ -42,7 +42,7 @@ const Board = ({ players, properties }: { players: any, properties: any }) => {
                             {properties.find((p: any) => p.name === cell.name)?.houses > 0 && (
                                 <>
                                     {Array(properties.find((p: any) => p.name === cell.name)?.houses).fill(0).map((_, houseIndex) => (
-                                        <Image key={houseIndex} src={`/House.png`} alt="House" width={30} height={30} className={`absolute top-${houseIndex * 10}`} />
+                                        <Image key={houseIndex} src={`/House.png`} alt="House" width={30} height={30} className={`absolute`} style={{ top: `${houseIndex * 30}px` }}  />
                                     ))}
                                 </>
                             )}
@@ -75,7 +75,7 @@ const Board = ({ players, properties }: { players: any, properties: any }) => {
                                 {properties.find((p: any) => p.name === cell.name)?.houses > 0 && (
                                     <>
                                         {Array(properties.find((p: any) => p.name === cell.name)?.houses).fill(0).map((_, houseIndex) => (
-                                            <Image key={houseIndex} src={`/House.png`} alt="House" width={30} height={30} className={`absolute top-${houseIndex * 10}`} />
+                                            <Image key={houseIndex} src={`/House.png`} alt="House" width={30} height={30} className={`absolute`} style={{ top: `${houseIndex * 30}px` }}  />
                                         ))}
                                     </>
                                 )}
@@ -89,7 +89,7 @@ const Board = ({ players, properties }: { players: any, properties: any }) => {
 
                 {/* Center */}
                 <div className="h-[360px] w-[360px] border-2 border-black">
-                    <Image src={'/middle.png'} className="h-[360px] w-[360px]" alt="middle" height={500} width={500} />
+                    <Image src={'/middle.png'} className="h-[360px] w-[360px] bg-gradient-to-l from-[#70e37e] to-[#3ae54f]" alt="middle" height={500} width={500} />
                 </div>
 
                 {/* Right Column */}
@@ -109,7 +109,7 @@ const Board = ({ players, properties }: { players: any, properties: any }) => {
                                 {properties.find((p: any) => p.name === cell.name)?.houses > 0 && (
                                     <>
                                         {Array(properties.find((p: any) => p.name === cell.name)?.houses).fill(0).map((_, houseIndex) => (
-                                            <Image key={houseIndex} src={`/House.png`} alt="House" width={30} height={30} className={`absolute top-${houseIndex * 10}`} />
+                                            <Image key={houseIndex} src={`/House.png`} alt="House" width={30} height={30} className={`absolute`} style={{ top: `${houseIndex * 30}px` }}  />
                                         ))}
                                     </>
                                 )}
@@ -139,7 +139,7 @@ const Board = ({ players, properties }: { players: any, properties: any }) => {
                             {properties.find((p: any) => p.name === cell.name)?.houses > 0 && (
                                 <>
                                     {Array(properties.find((p: any) => p.name === cell.name)?.houses).fill(0).map((_, houseIndex) => (
-                                        <Image key={houseIndex} src={`/House.png`} alt="House" width={30} height={30} className={`absolute top-${houseIndex * 10}`} />
+                                        <Image key={houseIndex} src={`/House.png`} alt="House" width={30} height={30} className={`absolute`} style={{ top: `${houseIndex * 30}px` }} />
                                     ))}
                                 </>
                             )}
