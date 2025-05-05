@@ -11,10 +11,10 @@ export const chanceCards = [
         },
     },
     {
-        title: "Advance to P13",
+        title: "Advance to P7",
         description: "If you pass Go, collect $200",
         functionality: (player: any, setPlayer: any, players: any) => {
-            const newPos = 19;
+            const newPos = 13;
             const passedGo = player.position > newPos;
             setPlayer((prev: any) => ({
                 ...prev,
@@ -25,9 +25,9 @@ export const chanceCards = [
     },
     {
         title: "Make General Repairs",
-        description: "Pay $25 per house",
+        description: "Pay $50 per house",
         functionality: (player: any, setPlayer: any, players: any) => {
-            let total = Object.keys(player.houses).length * 25;
+            let total = Object.keys(player.houses).length * 50;
             setPlayer((prev: any) => ({
                 ...prev,
                 balance: prev.balance - total,
@@ -35,22 +35,22 @@ export const chanceCards = [
         },
     },
     {
-        title: "Advance to P14",
-        description: "Move to P14",
+        title: "Advance to P8",
+        description: "Move to P8",
         functionality: (player: any, setPlayer: any, players: any) => {
             setPlayer((prev: any) => ({
                 ...prev,
-                position: 20,
+                position: 15,
             }));
         },
     },
     {
-        title: "Advance to P10",
-        description: "Move to P10",
+        title: "Advance to P5",
+        description: "Move to P5",
         functionality: (player: any, setPlayer: any, players: any) => {
             setPlayer((prev: any) => ({
                 ...prev,
-                position: 14,
+                position: 9,
             }));
         },
     },
@@ -70,7 +70,7 @@ export const chanceCards = [
         functionality: (player: any, setPlayer: any, players: any) => {
             setPlayer((prev: any) => ({
                 ...prev,
-                position: 6,
+                position: 4,
                 inJail: true,
             }));
         },
@@ -117,11 +117,11 @@ export const chanceCards = [
     },
     {
         title: "Pay Poor Tax",
-        description: "Pay $15",
+        description: "Pay $100",
         functionality: (player: any, setPlayer: any, players: any) => {
             setPlayer((prev: any) => ({
                 ...prev,
-                balance: prev.balance - 15,
+                balance: prev.balance - 100,
             }));
         },
     },
@@ -162,7 +162,7 @@ export const communityChestCards = [
         title: "Go to Jail",
         description: "Do not pass Go, do not collect $200",
         functionality: (player: any, setPlayer: any, players: any) => {
-            setPlayer((prev: any) => ({ ...prev, position: 6, inJail: true }));
+            setPlayer((prev: any) => ({ ...prev, position: 4, inJail: true }));
         },
     },
     {
@@ -181,24 +181,24 @@ export const communityChestCards = [
     },
     {
         title: "Assessed for Street Repairs",
-        description: "$40 per house",
+        description: "$50 per house",
         functionality: (player: any, setPlayer: any, players: any) => {
-            let total = Object.keys(player.houses).length * 40;
+            let total = Object.keys(player.houses).length * 50;
             setPlayer((prev: any) => ({ ...prev, balance: prev.balance - total }));
         },
     },
     {
         title: "Receive for Services",
-        description: "Collect $25",
+        description: "Collect $75",
         functionality: (player: any, setPlayer: any, players: any) => {
-            setPlayer((prev: any) => ({ ...prev, balance: prev.balance + 25 }));
+            setPlayer((prev: any) => ({ ...prev, balance: prev.balance + 75 }));
         },
     },
     {
         title: "Income Tax Refund",
-        description: "Collect $20",
+        description: "Collect $75",
         functionality: (player: any, setPlayer: any, players: any) => {
-            setPlayer((prev: any) => ({ ...prev, balance: prev.balance + 20 }));
+            setPlayer((prev: any) => ({ ...prev, balance: prev.balance + 75 }));
         },
     },
     {
@@ -231,9 +231,9 @@ export const communityChestCards = [
     },
     {
         title: "From Sale of Stock",
-        description: "You get $45",
+        description: "You get $200",
         functionality: (player: any, setPlayer: any, players: any) => {
-            setPlayer((prev: any) => ({ ...prev, balance: prev.balance + 45 }));
+            setPlayer((prev: any) => ({ ...prev, balance: prev.balance + 200 }));
         },
     },
     {
@@ -252,9 +252,9 @@ export const communityChestCards = [
     },
     {
         title: "Second Prize in Beauty Contest",
-        description: "Collect $10",
+        description: "Collect $150",
         functionality: (player: any, setPlayer: any, players: any) => {
-            setPlayer((prev: any) => ({ ...prev, balance: prev.balance + 10 }));
+            setPlayer((prev: any) => ({ ...prev, balance: prev.balance + 150 }));
         },
     },
 ];

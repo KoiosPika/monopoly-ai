@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { chanceCards, communityChestCards } from "./cards";
 import { Button } from "@/components/ui/button";
+import next from "next";
 
 const initialStats = {
   balance: 1500,
@@ -30,31 +31,29 @@ const initialStats = {
 
 export default function Home() {
 
-  const [player1, setPlayer1] = useState<any>({ ...initialStats, name: "Player 1", avatar: 'avatar_1.png' });
-  const [player2, setPlayer2] = useState<any>({ ...initialStats, name: "Player 2", avatar: 'avatar_2.png' });
+  const [player1, setPlayer1] = useState<any>({ ...initialStats, name: "Player", avatar: 'avatar_1.png' });
+  const [player2, setPlayer2] = useState<any>({ ...initialStats, name: "AI", avatar: 'avatar_2.png' });
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
   const [turn, setTurn] = useState(1);
   const [diceValues, setDiceValues] = useState([1, 1]);
   const [properties, setProperties] = useState([
-    { name: "P1", index: 1, price: 100, rent: 10, rentOneHouse: 20, rentTwoHouses: 30, rentThreeHouses: 40, OneHouseCost: 60, houses: 0, owner: null, color: '#2acb1a', mortgaged: false },
-    { name: "P2", index: 3, price: 150, rent: 20, rentOneHouse: 40, rentTwoHouses: 60, rentThreeHouses: 80, OneHouseCost: 90, houses: 0, owner: null, color: '#2365d9', mortgaged: false },
-    { name: "P3", index: 5, price: 200, rent: 40, rentOneHouse: 80, rentTwoHouses: 120, rentThreeHouses: 160, OneHouseCost: 120, houses: 0, owner: null, color: '#FF69B4', mortgaged: false },
-    { name: "P4", index: 7, price: 250, rent: 60, rentOneHouse: 120, rentTwoHouses: 180, rentThreeHouses: 240, OneHouseCost: 150, houses: 0, owner: null, color: '#FFA500', mortgaged: false },
-    { name: "P5", index: 9, price: 160, rent: 23, rentOneHouse: 45, rentTwoHouses: 70, rentThreeHouses: 90, OneHouseCost: 95, houses: 0, owner: null, color: '#a84ecf', mortgaged: false },
-    { name: "P6", index: 11, price: 110, rent: 12, rentOneHouse: 25, rentTwoHouses: 35, rentThreeHouses: 50, OneHouseCost: 65, houses: 0, owner: null, color: '#2acb1a', mortgaged: false },
-    { name: "P7", index: 13, price: 260, rent: 65, rentOneHouse: 130, rentTwoHouses: 195, rentThreeHouses: 260, OneHouseCost: 155, houses: 0, owner: null, color: '#FFA500', mortgaged: false },
-    { name: "P8", index: 15, price: 210, rent: 44, rentOneHouse: 90, rentTwoHouses: 130, rentThreeHouses: 175, OneHouseCost: 125, houses: 0, owner: null, color: '#FF69B4', mortgaged: false },
+    { name: "P1", index: 1,  price: 100, rent: 50, rentOneHouse: 100, rentTwoHouses: 200, rentThreeHouses: 300, OneHouseCost: 100, houses: 0, owner: null, color: '#2acb1a', mortgaged: false },
+    { name: "P2", index: 3,  price: 150, rent: 60, rentOneHouse: 120, rentTwoHouses: 240, rentThreeHouses: 360, OneHouseCost: 150, houses: 0, owner: null, color: '#2365d9', mortgaged: false },
+    { name: "P3", index: 5,  price: 200, rent: 70, rentOneHouse: 140, rentTwoHouses: 280, rentThreeHouses: 420, OneHouseCost: 200, houses: 0, owner: null, color: '#FF69B4', mortgaged: false },
+    { name: "P4", index: 7,  price: 250, rent: 80, rentOneHouse: 160, rentTwoHouses: 320, rentThreeHouses: 480, OneHouseCost: 250, houses: 0, owner: null, color: '#FFA500', mortgaged: false },
+    { name: "P5", index: 9,  price: 160, rent: 55, rentOneHouse: 110, rentTwoHouses: 220, rentThreeHouses: 330, OneHouseCost: 160, houses: 0, owner: null, color: '#a84ecf', mortgaged: false },
+    { name: "P6", index: 11, price: 110, rent: 65, rentOneHouse: 130, rentTwoHouses: 260, rentThreeHouses: 390, OneHouseCost: 110, houses: 0, owner: null, color: '#2acb1a', mortgaged: false },
+    { name: "P7", index: 13, price: 260, rent: 75, rentOneHouse: 150, rentTwoHouses: 300, rentThreeHouses: 450, OneHouseCost: 260, houses: 0, owner: null, color: '#FFA500', mortgaged: false },
+    { name: "P8", index: 15, price: 210, rent: 85, rentOneHouse: 170, rentTwoHouses: 340, rentThreeHouses: 510, OneHouseCost: 210, houses: 0, owner: null, color: '#FF69B4', mortgaged: false },
   ]);
 
   const [landedProperty, setLandedProperty] = useState<any>(null);
   const [chanceCard, setChanceCard] = useState<any>(null);
   const [communityChestCard, setCommunityChestCard] = useState<any>(null);
-  const [bankruptcyModal, setBankruptcyModal] = useState<any>(null);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [inJailDialog, setinJailDialog] = useState(true);
-  const [scenarioGenerated, setScenarioGenerated] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
+  const [gameDialog, setGameDialog] = useState<any>({ avatar: null, description: null });
 
 
   const players = [
@@ -63,6 +62,39 @@ export default function Home() {
   ];
 
   const currentPlayer = players[currentPlayerIndex].player;
+
+  useEffect(() => {
+    async function handleGameTurns() {
+      if (turn == 1) {
+        setGameDialog({ avatar: '3', description: 'Game Started' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(200);
+      } else if (turn > 1 && turn % 2 === 0) {
+        setGameDialog({ avatar: '1', description: 'Player turn ended' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(200);
+        setGameDialog({ avatar: '2', description: 'AI turn started' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+
+        AITurn();
+      } else if (turn > 1 && turn % 2 != 0) {
+        setGameDialog({ avatar: '2', description: 'AI turn ended' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(200);
+        setGameDialog({ avatar: '1', description: 'Player turn started' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(200);
+        setinJailDialog(true);
+      }
+    }
+
+    handleGameTurns();
+  }, [turn]);
 
   const rollDice = () => {
     const player = player1;
@@ -104,7 +136,7 @@ export default function Home() {
       let newPosition = (player.position + diceRoll) % 16;
 
       let currentPos = player.position;
-      const moveInterval = setInterval(() => {
+      const moveInterval = setInterval( async () => {
         if (currentPos !== newPosition) {
           currentPos = (currentPos + 1) % 16;
           setPlayer((prev: any) => ({
@@ -134,16 +166,21 @@ export default function Home() {
               turnsInJail: 0,
             }));
             setinJailDialog(false)
+            setGameDialog({ avatar: '2', description: 'Player is in Jail' });
+            await sleep(1500);
+            setGameDialog({ avatar: null, description: null });
+            await sleep(300);
           }
         }
       }, 250);
     }, 1500);
+
   };
 
+
   const nextTurn = () => {
-    setTurn((prev) => (prev + 1));
-    setinJailDialog(true)
     setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
+    setTurn((prev) => prev + 1); // No AITurn here
   };
 
   const buyProperty = (landedProperty: any) => {
@@ -165,7 +202,7 @@ export default function Home() {
     setLandedProperty(null);
   };
 
-  const payRent = (landedProperty: any) => {
+  const payRent = async (landedProperty: any) => {
     let rentAmount;
 
     switch (landedProperty.property.houses) {
@@ -178,57 +215,29 @@ export default function Home() {
     const tenant = landedProperty.player;
     const owner = players.find((p: any) => p.player.name === landedProperty.property.owner);
 
-    if (!owner) return; // Safety check in case owner is missing
+    if (!owner) return;
 
     if (tenant.balance >= rentAmount) {
-      // Normal rent payment
       landedProperty.setPlayer((prev: any) => ({
         ...prev,
         balance: prev.balance - rentAmount
       }));
 
       // Give money to the property owner
-      if (owner.player.name === "Player 1") setPlayer1((prev: any) => ({ ...prev, balance: prev.balance + rentAmount }));
-      if (owner.player.name === "Player 2") setPlayer2((prev: any) => ({ ...prev, balance: prev.balance + rentAmount }));
+      if (owner.player.name === "Player") setPlayer1((prev: any) => ({ ...prev, balance: prev.balance + rentAmount }));
+      if (owner.player.name === "AI") setPlayer2((prev: any) => ({ ...prev, balance: prev.balance + rentAmount }));
+
+      if (player1.balance < 0){
+        setPlayer1((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
+        setGameDialog({ avatar: '1', description: `Player is Bankrupt` });
+        await sleep(1500);
+        setGameDialog({ avatar: '2', description: `AI Wins!` });
+        await sleep(300);
+        return;
+      }
 
       setLandedProperty(null);
-    } else {
-      // Not enough balance: handle bankruptcy
-      setBankruptcyModal({ tenant, owner, rentAmount });
     }
-  };
-
-  const declareBankruptcy = (player: any) => {
-    setPlayer1((prev: any) => prev.name === player.name ? { ...prev, bankrupt: true, balance: 0, properties: [] } : prev);
-    setPlayer2((prev: any) => prev.name === player.name ? { ...prev, bankrupt: true, balance: 0, properties: [] } : prev);
-
-    setBankruptcyModal(null);
-  };
-
-  const sellProperty = (landedProperty: any) => {
-    const player = landedProperty.player;
-    const setPlayer = landedProperty.setPlayer;
-
-    if (player.properties.length === 0) return; // No properties to sell
-
-    const propertyToSell = player.properties[0]; // Just pick the first one for now
-
-    // Find a buyer (for now, just give it to the next player in turn)
-    const buyer = players.find(p => p.player.name !== player.name && !p.player.bankrupt);
-    if (!buyer) return; // No buyer available
-
-    // Transfer property
-    setPlayer((prev: any) => ({
-      ...prev,
-      balance: prev.balance + propertyToSell.price, // Get full property price
-      properties: prev.properties.filter((prop: any) => prop.name !== propertyToSell.name), // Remove from seller
-    }));
-
-    // Give property to buyer
-    if (buyer.player.name === "Player 1") setPlayer1((prev: any) => ({ ...prev, properties: [...prev.properties, propertyToSell.name] }));
-    if (buyer.player.name === "Player 2") setPlayer2((prev: any) => ({ ...prev, properties: [...prev.properties, propertyToSell.name] }));
-
-    setLandedProperty(null);
   };
 
   const upgradeProperty = (player: any, setPlayer: any, property: any) => {
@@ -269,17 +278,13 @@ export default function Home() {
   }
 
   const handleEndTurn = (player: number) => {
-    if (player == 1) {
-      nextTurn()
-      AITurn()
-    } else {
-      nextTurn()
-    }
+    nextTurn()
   }
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const AITurn = async () => {
+    console.log("AI Turn")
     const { player, setPlayer } = players[1];
     if (player.bankrupt) return;
 
@@ -313,6 +318,10 @@ export default function Home() {
       await sleep(500);
 
       if (chosen === 1) {
+        setGameDialog({ avatar: '2', description: 'AI decided to Roll Twice' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(300);
         setinJailDialog(false);
         setVisible(true);
         let intervalId;
@@ -338,6 +347,7 @@ export default function Home() {
             ...prev,
             turnsInJail: prev.turnsInJail + 1,
           }));
+          nextTurn()
           return;
         } else {
           setPlayer((prev: any) => ({
@@ -362,54 +372,67 @@ export default function Home() {
           const property = properties.find(p => p.index === newPosition);
 
           if (property) {
-            if (!property.owner) {
-              const colorSet = properties.filter(p => p.color === property.color);
-              const ownedByPlayer = colorSet.filter(p => p.owner === player.name);
-              const isMonopolyPossible = ownedByPlayer.length >= colorSet.length - 1;
-
-              const shouldBuy =
-                player.balance >= property.price &&
-                (isMonopolyPossible || property.rent > 20 || Math.random() > 0.3);
-
-              if (shouldBuy) {
-
-                if (player.balance >= property.price) {
-                  setPlayer((prev: any) => ({
-                    ...prev,
-                    balance: prev.balance - property.price,
-                    properties: [...prev.properties, property.name],
-                  }));
-                  setProperties(prev =>
-                    prev.map(p => p.name === property.name ? { ...p, owner: player.name } : p)
-                  );
-                }
-              }
-            } else if (property.owner !== player.name) {
-              // 💰 Pay Rent + TD-learning could learn from bad decisions
-              const rent = checkRent({ property });
-              const ownerObj = players.find(p => p.player.name === property.owner);
-              if (!ownerObj) return;
+            if (!property.owner && property.price <= player.balance) {
 
               setLoading(true);
-              const shouldPay = await fetch('http://127.0.0.1:8000/ai/td-learning', {
+              const response = await fetch('http://127.0.0.1:8000/ai/ucb1', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   current_player: player,
                   players: players.map(p => p.player),
                   properties,
-                  rent
+                  property_to_consider: property
                 })
               });
 
-              const decision = await shouldPay.json();
+              const shouldBuy = await response.json();
+
               setLoading(false);
 
-              if (decision && player.balance >= rent) {
+              if (shouldBuy) {
+
+                setGameDialog({ avatar: '2', description: 'AI decided to Buy the Property' });
+                await sleep(1500);
+                setGameDialog({ avatar: null, description: null });
+                await sleep(300);
+
+                setPlayer((prev: any) => ({
+                  ...prev,
+                  balance: prev.balance - property.price,
+                  properties: [...prev.properties, property.name],
+                }));
+                setProperties(prev =>
+                  prev.map(p => p.name === property.name ? { ...p, owner: player.name } : p)
+                );
+              } else {
+                setGameDialog({ avatar: '2', description: 'AI decided to Skip Buying the Property' });
+                await sleep(1500);
+                setGameDialog({ avatar: null, description: null });
+                await sleep(300);
+              }
+            } else if (property.owner !== player.name) {
+              // Pay Rent + TD-learning could learn from bad decisions
+              const rent = checkRent({ property });
+              const ownerObj = players.find(p => p.player.name === property.owner);
+              if (!ownerObj) return;
+
+              if (player.balance >= rent) {
                 setPlayer((prev: any) => ({ ...prev, balance: prev.balance - rent }));
                 ownerObj.setPlayer((prev: any) => ({ ...prev, balance: prev.balance + rent }));
+                setGameDialog({ avatar: '2', description: `AI paid $${rent} rent` });
+                await sleep(1500);
+                setGameDialog({ avatar: null, description: null });
+                await sleep(300);
+              } else {
+                setPlayer((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
+                setGameDialog({ avatar: '2', description: `AI is Bankrupt` });
+                await sleep(1500);
+                setGameDialog({ avatar: '1', description: `Player Wins!` });
+                await sleep(300);
+                return;
               }
-            } else if (property.owner == player.name) {
+            } else if (property.owner == player.name && property.houses < 3 && player.balance >= property.OneHouseCost) {
               setLoading(true);
               const shouldBuild = await fetch('http://127.0.0.1:8000/ai/expectimax-building', {
                 method: 'POST',
@@ -426,7 +449,12 @@ export default function Home() {
 
               setLoading(false);
 
-              if (decision && player.balance >= property.OneHouseCost) {
+              if (decision) {
+                setGameDialog({ avatar: '2', description: 'AI decided to Build a new house' });
+                await sleep(1500);
+                setGameDialog({ avatar: null, description: null });
+                await sleep(300);
+
                 setPlayer((prev: any) => ({
                   ...prev,
                   balance: prev.balance - property.OneHouseCost
@@ -437,6 +465,11 @@ export default function Home() {
                     p.name === property.name ? { ...p, houses: p.houses + 1 } : p
                   )
                 );
+              } else {
+                setGameDialog({ avatar: '2', description: 'AI decided to Skip Building a new house' });
+                await sleep(1500);
+                setGameDialog({ avatar: null, description: null });
+                await sleep(300);
               }
             }
           } else if ([6, 14].includes(newPosition)) {
@@ -448,6 +481,11 @@ export default function Home() {
             setCommunityChestCard(card);
             card.functionality(player, setPlayer, players);
           } else if (newPosition == 12) {
+            setGameDialog({ avatar: '2', description: 'AI is in Jail' });
+            await sleep(1500);
+            setGameDialog({ avatar: null, description: null });
+            await sleep(300);
+
             setPlayer((prev: any) => ({
               ...prev,
               inJail: true,
@@ -457,18 +495,28 @@ export default function Home() {
             setinJailDialog(false)
           }
 
-          return;
+          nextTurn()
+          await sleep(800);
         }
       } else if (chosen === 2 && player.balance >= 50) {
         setinJailDialog(false);
+        setGameDialog({ avatar: '2', description: 'AI decided to Pay $50 Fee' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(300);
         setPlayer((prev: any) => ({
           ...prev,
           balance: prev.balance - 50,
           inJail: false,
           turnsInJail: 0,
         }));
+        nextTurn()
         return;
       } else if (chosen === 3 && player.getOutOfJailCards > 0) {
+        setGameDialog({ avatar: '2', description: 'AI decided use Get out of Jail Card' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(300);
         setinJailDialog(false);
         setPlayer((prev: any) => ({
           ...prev,
@@ -476,13 +524,10 @@ export default function Home() {
           inJail: false,
           turnsInJail: 0,
         }));
-        return;
-      } else {
-        setinJailDialog(false);
+        nextTurn()
         return;
       }
     }
-
 
     if (player.skipTurnCount > 0) {
       setLoading(true);
@@ -497,21 +542,29 @@ export default function Home() {
       });
 
       const expectedLoss = await expectimaxResult.json();
+      setLoading(false);
 
       if (expectedLoss < 300) {
+        setGameDialog({ avatar: '2', description: 'AI decided to Skip Thier Turn' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(300);
 
         setPlayer((prev: any) => ({
           ...prev,
           skipTurnCount: prev.skipTurnCount - 1,
         }));
 
-        setLoading(false);
+        nextTurn()
         return;
+      } else {
+        setGameDialog({ avatar: '2', description: 'AI decided to Roll the Dice' });
+        await sleep(1500);
+        setGameDialog({ avatar: null, description: null });
+        await sleep(300);
+        setinJailDialog(true);
       }
-
-      setLoading(false);
     }
-
 
     setVisible(true);
     let rollInterval;
@@ -548,7 +601,7 @@ export default function Home() {
     const property = properties.find(p => p.index === newPosition);
 
     if (property) {
-      if (!property.owner) {
+      if (!property.owner && property.price <= player.balance) {
 
         setLoading(true);
         const response = await fetch('http://127.0.0.1:8000/ai/ucb1', {
@@ -568,16 +621,24 @@ export default function Home() {
 
         if (shouldBuy) {
 
-          if (player.balance >= property.price) {
-            setPlayer((prev: any) => ({
-              ...prev,
-              balance: prev.balance - property.price,
-              properties: [...prev.properties, property.name],
-            }));
-            setProperties(prev =>
-              prev.map(p => p.name === property.name ? { ...p, owner: player.name } : p)
-            );
-          }
+          setGameDialog({ avatar: '2', description: 'AI decided to Buy the Property' });
+          await sleep(1500);
+          setGameDialog({ avatar: null, description: null });
+          await sleep(300);
+
+          setPlayer((prev: any) => ({
+            ...prev,
+            balance: prev.balance - property.price,
+            properties: [...prev.properties, property.name],
+          }));
+          setProperties(prev =>
+            prev.map(p => p.name === property.name ? { ...p, owner: player.name } : p)
+          );
+        } else {
+          setGameDialog({ avatar: '2', description: 'AI decided to Skip Buying the Property' });
+          await sleep(1500);
+          setGameDialog({ avatar: null, description: null });
+          await sleep(300);
         }
       } else if (property.owner !== player.name) {
         // Pay Rent + TD-learning could learn from bad decisions
@@ -591,7 +652,7 @@ export default function Home() {
         } else {
           setPlayer((prev: any) => ({ ...prev, bankrupt: true, balance: 0, properties: [] }));
         }
-      } else if (property.owner == player.name) {
+      } else if (property.owner == player.name && property.houses < 3 && player.balance >= property.OneHouseCost) {
         setLoading(true);
         const shouldBuild = await fetch('http://127.0.0.1:8000/ai/expectimax-building', {
           method: 'POST',
@@ -608,7 +669,12 @@ export default function Home() {
 
         setLoading(false);
 
-        if (decision && player.balance >= property.OneHouseCost) {
+        if (decision) {
+          setGameDialog({ avatar: '2', description: 'AI decided to Build a new house' });
+          await sleep(1500);
+          setGameDialog({ avatar: null, description: null });
+          await sleep(300);
+
           setPlayer((prev: any) => ({
             ...prev,
             balance: prev.balance - property.OneHouseCost
@@ -619,6 +685,11 @@ export default function Home() {
               p.name === property.name ? { ...p, houses: p.houses + 1 } : p
             )
           );
+        } else {
+          setGameDialog({ avatar: '2', description: 'AI decided to Skip Building a new house' });
+          await sleep(1500);
+          setGameDialog({ avatar: null, description: null });
+          await sleep(300);
         }
       }
     } else if ([6, 14].includes(newPosition)) {
@@ -630,6 +701,11 @@ export default function Home() {
       setCommunityChestCard(card);
       card.functionality(player, setPlayer, players);
     } else if (newPosition == 12) {
+      setGameDialog({ avatar: '2', description: 'AI is in Jail' });
+      await sleep(1500);
+      setGameDialog({ avatar: null, description: null });
+      await sleep(300);
+
       setPlayer((prev: any) => ({
         ...prev,
         inJail: true,
@@ -639,7 +715,7 @@ export default function Home() {
       setinJailDialog(false)
     }
 
-    nextTurn();
+    nextTurn()
     await sleep(800);
   };
 
@@ -672,14 +748,14 @@ export default function Home() {
     const player1Properties = ownedProperties.slice(0, player1Count);
     const player2Properties = ownedProperties.slice(player1Count);
 
-    const randomBalance1 = () => Math.floor(Math.random() * 400) + 1600; // 800–1200
-    const randomBalance2 = () => Math.floor(Math.random() * 400) + 1600; // 800–1200
+    const randomBalance1 = () => Math.floor(Math.random() * 1600) + 400; // 800–1200
+    const randomBalance2 = () => Math.floor(Math.random() * 1600) + 400; // 800–1200
 
     const randomHouses = () => Math.floor(Math.random() * 3); // 0–4 houses
 
     setPlayer1({
       ...initialStats,
-      name: "Player 1",
+      name: "Player",
       avatar: "avatar_1.png",
       balance: randomBalance1(),
       position: Math.floor(Math.random() * 10),
@@ -691,7 +767,7 @@ export default function Home() {
 
     setPlayer2({
       ...initialStats,
-      name: "Player 2",
+      name: "AI",
       avatar: "avatar_2.png",
       balance: randomBalance2(),
       position: Math.floor(Math.random() * 10),
@@ -703,272 +779,259 @@ export default function Home() {
 
     setProperties((prev: any) =>
       prev.map((p: any) => {
-        if (player1Properties.includes(p.name)) return { ...p, owner: "Player 1", houses: randomHouses() };
-        if (player2Properties.includes(p.name)) return { ...p, owner: "Player 2", houses: randomHouses() };
+        if (player1Properties.includes(p.name)) return { ...p, owner: "Player", houses: randomHouses() };
+        if (player2Properties.includes(p.name)) return { ...p, owner: "AI", houses: randomHouses() };
         return { ...p, owner: null, houses: 0 };
       })
     );
 
-    setScenarioGenerated(true);
-    setGameStarted(false);
     setCurrentPlayerIndex(0);
-  };
-
-  const startGame = () => {
-    setGameStarted(true);
+    setTurn(1);
   };
 
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 pb-10 gap-10 sm:p-20 font-[family-name:var(--font-geist-sans)]" style={{ backgroundImage: 'url(/bg.jpg)' }}>
-      <div>
-          {/* current turn */}
-          <div className="text-[30px] font-bold">{turn}</div>
+    <div className="relative w-full min-h-screen overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover z-[-1]"
+      >
+        <source src="/bg-move-2.MP4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 pb-10 gap-10 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+        <div className="flex flex-row justify-center items-center py-2 rounded-lg gap-3 relative">
+          <div className="absolute top-[220px] left-[-300px] flex flex-col justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[175px] w-[175px]" style={{ backgroundColor: 'rgba(100, 22, 159, 0.5)' }}>
+            <p className="text-white font-semibold text-[20px]">Player Turn</p>
+            <Image src={`/${currentPlayer.avatar}`} alt="avatar" height={75} width={75} />
+            <p className="text-white font-semibold text-[20px]">{currentPlayer.name}</p>
+          </div>
+          <div className="absolute top-[450px] left-[-300px] flex flex-col justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[175px] w-[175px]" style={{ backgroundColor: 'rgba(100, 22, 159, 0.5)' }}>
+            <p className="text-white font-semibold text-[20px]">Current Round</p>
+            <p className="text-yellow-500 font-semibold text-[50px]">{turn}</p>
+          </div>
+          <div className="absolute top-[350px] right-[-300px] flex flex-col justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[175px] w-[175px] cursor-pointer" style={{ backgroundColor: 'rgba(100, 22, 159, 0.5)' }} onClick={generateScenario}>
+            <Image src={`/scenario.png`} alt="avatar" height={400} width={400} className="h-[200px] w-[200px]" />
+          </div>
+          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px]" style={{ backgroundColor: 'rgba(100, 22, 159, 0.5)' }}>
+            <Image src={'/balance.png'} alt="money" className="h-[75px] w-[120px]" height={200} width={200} />
+            <p className="text-[20px] text-white font-semibold">${(player2.balance).toLocaleString()}</p>
+          </div>
+          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px] cursor-pointer" style={{ backgroundColor: 'rgba(100, 22, 159, 0.5)' }} onClick={() => handleEndTurn(2)}>
+            <Image src={'/hand.png'} alt="money" className="h-[80px] w-[90px]" height={200} width={200} />
+            <p className="text-[20px] text-white font-semibold">End Turn</p>
+          </div>
         </div>
-      <div className="flex flex-row justify-center items-center py-2 rounded-lg gap-3 relative">
-        <div className="absolute top-10 left-[-370px] flex flex-col justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[175px] w-[175px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }}>
-          <p className="text-white font-semibold text-[20px]">Player Turn</p>
-          <Image src={`/${currentPlayer.avatar}`} alt="avatar" height={75} width={75} />
-          <p className="text-white font-semibold text-[20px]">{currentPlayer.name}</p>
+        <div className="flex flex-row justify-center items-center gap-10 relative">
+          <Board properties={properties} players={players} />
+          {gameDialog.avatar &&
+            <div className={`absolute top-56 h-[150px] w-[400px] flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 fade-in`} style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover', animation: 'fadeIn 0.3s ease-in-out' }}>
+              <Image src={`/avatar_${gameDialog.avatar}.png`} alt="avatar" height={200} width={200} className="aspect-square w-1/3 rounded-lg" />
+              <p className="text-[20px] text-white font-semibold w-2/3 text-center">{gameDialog.description}</p>
+            </div>
+          }
         </div>
-        <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }}>
-          <Image src={'/balance.png'} alt="money" className="h-[75px] w-[120px]" height={200} width={200} />
-          <p className="text-[20px] text-white font-semibold">${(player2.balance).toLocaleString()}</p>
+        <div className="flex flex-row justify-center items-center py-2 rounded-lg gap-3">
+          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px]" style={{ backgroundColor: 'rgba(100, 22, 159, 0.5)' }}>
+            <Image src={'/balance.png'} alt="money" className="h-[75px] w-[120px]" height={200} width={200} />
+            <p className="text-[20px] text-white font-semibold">${(player1.balance).toLocaleString()}</p>
+          </div>
+          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px] cursor-pointer" style={{ backgroundColor: 'rgba(100, 22, 159, 0.5)' }} onClick={() => handleEndTurn(1)}>
+            <Image src={'/hand.png'} alt="money" className="h-[80px] w-[90px]" height={200} width={200} />
+            <p className="text-[20px] text-white font-semibold">End Turn</p>
+          </div>
+          <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px]" style={{ backgroundColor: 'rgba(100, 22, 159, 0.5)' }} onClick={() => rollDice()}>
+            <Image src={'/dice.png'} alt="money" className="h-[100px] w-[100px]" height={200} width={200} />
+            <p className="text-[20px] text-white font-semibold">Roll</p>
+          </div>
         </div>
-        <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[300px] cursor-pointer" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => handleEndTurn(2)}>
-          <Image src={'/hand.png'} alt="money" className="h-[80px] w-[90px]" height={200} width={200} />
-          <p className="text-[20px] text-white font-semibold">End Turn</p>
-        </div>
-      </div>
-      <div className="flex flex-row justify-center items-center gap-10">
-        <Board properties={properties} players={players} />
-      </div>
-      <div className="flex flex-row justify-center items-center py-2 rounded-lg gap-3">
-        <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }}>
-          <Image src={'/balance.png'} alt="money" className="h-[75px] w-[120px]" height={200} width={200} />
-          <p className="text-[20px] text-white font-semibold">${(player1.balance).toLocaleString()}</p>
-        </div>
-        <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px] cursor-pointer" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => handleEndTurn(1)}>
-          <Image src={'/hand.png'} alt="money" className="h-[80px] w-[90px]" height={200} width={200} />
-          <p className="text-[20px] text-white font-semibold">End Turn</p>
-        </div>
-        <div className="flex flex-row justify-center items-center gap-3 p-2 rounded-lg border-3 border-yellow-400 h-[100px] w-[225px]" style={{ backgroundColor: 'rgba(238, 117, 23, 0.5)' }} onClick={() => rollDice()}>
-          <Image src={'/dice.png'} alt="money" className="h-[100px] w-[100px]" height={200} width={200} />
-          <p className="text-[20px] text-white font-semibold">Roll</p>
-        </div>
-      </div>
-      <div className="flex gap-6 mt-6">
-        {!scenarioGenerated && (
-          <Button onClick={generateScenario} className="bg-blue-500 text-white px-6 py-2 rounded-md text-lg">
-            Generate Scenario
-          </Button>
+        {(landedProperty && !landedProperty.property.owner) &&
+          <AlertDialog open={true} onOpenChange={() => setLandedProperty(null)}>
+            <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-yellow-500 w-[180px] text-[25px] font-bold text-center rounded-md">{landedProperty.property.name} is for sale</AlertDialogTitle>
+                <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
+                  <p>RENT ${landedProperty.property.rent}</p>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">With 1 House</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentOneHouse}</p>
+                  </div>
+                  <div className="flex flex-row justify-around items-center w-full my-1">
+                    <p className="w-1/2 text-center">With 2 House</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentTwoHouses}</p>
+                  </div>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">With 3 House</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
+                  </div>
+                  <p>---------------------------</p>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">One House Cost</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
+                  </div>
+                </div>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="text-[16px]" onClick={() => setLandedProperty(null)}>No</AlertDialogCancel>
+                <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => buyProperty(landedProperty)}>Buy for ${landedProperty.property.price}</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>}
+        {chanceCard &&
+          <AlertDialog open={true} onOpenChange={() => setChanceCard(null)}>
+            <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-yellow-500 w-[180px] text-[25px] font-bold text-center rounded-md">Chance Cards!</AlertDialogTitle>
+                {chanceCard && <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
+                  <p className="text-center text-[21px]">{chanceCard.title}</p>
+                  <p className="text-center text-[21px]">{chanceCard.description}</p>
+                </div>}
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="text-[16px]" onClick={() => setChanceCard(null)}>Ok</AlertDialogCancel>
+                {/* <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => buyProperty(landedProperty)}>Buy for ${landedProperty.property.price}</AlertDialogAction> */}
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>}
+        {communityChestCard &&
+          <AlertDialog open={true} onOpenChange={() => setCommunityChestCard(null)}>
+            <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-yellow-400 w-[180px] text-[25px] font-bold text-center rounded-md">Chance Cards!</AlertDialogTitle>
+                {communityChestCard && <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
+                  <p className="text-center text-[21px]">{communityChestCard.title}</p>
+                  <p className="text-center text-[21px]">{communityChestCard.description}</p>
+                </div>}
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="text-[16px]" onClick={() => setCommunityChestCard(null)}>Ok</AlertDialogCancel>
+                {/* <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => buyProperty(landedProperty)}>Buy for ${landedProperty.property.price}</AlertDialogAction> */}
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>}
+        {currentPlayer.inJail &&
+          <AlertDialog open={inJailDialog && currentPlayerIndex == 0} onOpenChange={() => setCommunityChestCard(null)}>
+            <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-yellow-400 w-[180px] text-[25px] font-bold text-center rounded-md">{`You're`} in Jail!</AlertDialogTitle>
+                <p className="text-[21px] text-white text-center">What would you like to do?</p>
+                <p className="text-[21px] text-white text-center">Turns in Jail: {currentPlayer.turnsInJail}</p>
+              </AlertDialogHeader>
+              <Button onClick={() => breakOutOfJail('rollDouble')} className="bg-yellow-400 text-black font-bold text-[17px]" disabled={currentPlayer.turnsInJail == 3}>Try Roll Double</Button>
+              <Button onClick={() => breakOutOfJail('payFine')} className="bg-yellow-400 text-black font-bold text-[17px]">Pay $50 Fine</Button>
+              <Button onClick={() => breakOutOfJail('useCard')} className="bg-yellow-400 text-black font-bold text-[17px]" disabled={currentPlayer.getOutOfJailCards == 0}>Use Get Out Of Jail Card</Button>
+              <AlertDialogFooter>
+                {/* <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => buyProperty(landedProperty)}>Buy for ${landedProperty.property.price}</AlertDialogAction> */}
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>}
+        {landedProperty && landedProperty.property.owner && landedProperty.property.owner !== landedProperty.player.name && (
+          <AlertDialog open={true} onOpenChange={() => setLandedProperty(null)}>
+            <AlertDialogTrigger><></></AlertDialogTrigger>
+            <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-yellow-400 w-[180px] text-[25px] font-bold text-center rounded-md">
+                  Pay Rent to {landedProperty.property.owner}
+                </AlertDialogTitle>
+                <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
+                  <p>RENT: ${landedProperty.property.rent}</p>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">With 1 House</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentOneHouse}</p>
+                  </div>
+                  <div className="flex flex-row justify-around items-center w-full my-1">
+                    <p className="w-1/2 text-center">With 2 Houses</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentTwoHouses}</p>
+                  </div>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">With 3 Houses</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
+                  </div>
+                  <p>---------------------------</p>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">One House Cost</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
+                  </div>
+                </div>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => payRent(landedProperty)}>Pay ${checkRent(landedProperty)}</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
-        {scenarioGenerated && !gameStarted && (
-          <Button onClick={startGame} className="bg-green-500 text-white px-6 py-2 rounded-md text-lg">
-            Start Game
-          </Button>
+        {landedProperty && landedProperty.property?.owner !== null && landedProperty.property?.owner !== undefined && landedProperty.property.owner === landedProperty.player.name && (
+          <AlertDialog open={true} onOpenChange={() => setLandedProperty(null)}>
+            <AlertDialogTrigger><></></AlertDialogTrigger>
+            <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-yellow-400 w-[300px] text-[25px] font-bold text-center rounded-md">
+                  Build House No.{landedProperty.property.houses + 1}
+                </AlertDialogTitle>
+                <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
+                  <p>RENT: ${landedProperty.property.rent}</p>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">With 1 House</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentOneHouse}</p>
+                  </div>
+                  <div className="flex flex-row justify-around items-center w-full my-1">
+                    <p className="w-1/2 text-center">With 2 Houses</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentTwoHouses}</p>
+                  </div>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">With 3 Houses</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
+                  </div>
+                  <p>---------------------------</p>
+                  <div className="flex flex-row justify-around items-center w-full">
+                    <p className="w-1/2 text-center">One House Cost</p>
+                    <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
+                  </div>
+                </div>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="text-[16px]" onClick={() => setLandedProperty(null)}>No</AlertDialogCancel>
+                <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => upgradeProperty(landedProperty.player, landedProperty.setPlayer, landedProperty.property)}>
+                  Build House for ${landedProperty.property.OneHouseCost}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+        {visible && (
+          <div className="flex flex-row justify-center absolute top-120 items-center gap-3 p-5 rounded-lg border-[4px] border-yellow-500" style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }}>
+            <Image
+              src={`/dice/${diceValues[0]}.jpeg`}
+              alt="dice"
+              className="h-[75px] w-[75px] rounded-lg border-2 border-yellow-500"
+              height={150}
+              width={150}
+            />
+            <Image
+              src={`/dice/${diceValues[1]}.jpeg`}
+              alt="dice"
+              className="h-[75px] w-[75px] rounded-lg border-2 border-yellow-500"
+              height={150}
+              width={150}
+            />
+          </div>
+        )}
+        {loading && (
+          <div className="flex flex-row justify-center absolute top-120 items-center gap-3 p-5 rounded-lg border-4 border-yellow-400" style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }}>
+            <Image
+              src={`/hourglass.png`}
+              alt="hourglass"
+              className="h-[75px] w-[75px] rounded-md animate-spin"
+              height={150}
+              width={150}
+            />
+          </div>
         )}
       </div>
-      {(landedProperty && !landedProperty.property.owner) &&
-        <AlertDialog open={true} onOpenChange={() => setLandedProperty(null)}>
-          <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="bg-yellow-400 text-black w-[180px] text-[25px] font-bold text-center rounded-md">{landedProperty.property.name} is for sale</AlertDialogTitle>
-              <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
-                <p>RENT ${landedProperty.property.rent}</p>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">With 1 House</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentOneHouse}</p>
-                </div>
-                <div className="flex flex-row justify-around items-center w-full my-1">
-                  <p className="w-1/2 text-center">With 2 House</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentTwoHouses}</p>
-                </div>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">With 3 House</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
-                </div>
-                <p>---------------------------</p>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">One House Cost</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
-                </div>
-              </div>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="text-[16px]" onClick={() => setLandedProperty(null)}>No</AlertDialogCancel>
-              <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => buyProperty(landedProperty)}>Buy for ${landedProperty.property.price}</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>}
-      {chanceCard &&
-        <AlertDialog open={true} onOpenChange={() => setChanceCard(null)}>
-          <AlertDialogTrigger>g</AlertDialogTrigger>
-          <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="bg-yellow-400 text-black w-[180px] text-[25px] font-bold text-center rounded-md">Chance Cards!</AlertDialogTitle>
-              {chanceCard && <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
-                <p className="text-center">{chanceCard.title}</p>
-                <p className="text-center">{chanceCard.description}</p>
-              </div>}
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="text-[16px]" onClick={() => setChanceCard(null)}>Ok</AlertDialogCancel>
-              {/* <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => buyProperty(landedProperty)}>Buy for ${landedProperty.property.price}</AlertDialogAction> */}
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>}
-      {communityChestCard &&
-        <AlertDialog open={true} onOpenChange={() => setCommunityChestCard(null)}>
-          <AlertDialogTrigger>g</AlertDialogTrigger>
-          <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="bg-yellow-400 text-black w-[180px] text-[25px] font-bold text-center rounded-md">Chance Cards!</AlertDialogTitle>
-              {communityChestCard && <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
-                <p className="text-center">{communityChestCard.title}</p>
-                <p className="text-center">{communityChestCard.description}</p>
-              </div>}
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="text-[16px]" onClick={() => setCommunityChestCard(null)}>Ok</AlertDialogCancel>
-              {/* <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => buyProperty(landedProperty)}>Buy for ${landedProperty.property.price}</AlertDialogAction> */}
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>}
-      {currentPlayer.inJail &&
-        <AlertDialog open={inJailDialog} onOpenChange={() => setCommunityChestCard(null)}>
-          <AlertDialogTrigger>g</AlertDialogTrigger>
-          <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="bg-yellow-400 text-black w-[180px] text-[25px] font-bold text-center rounded-md">{`You're`} in Jail!</AlertDialogTitle>
-              <p className="text-[18px] text-white text-center">What would you like to do?</p>
-              <p className="text-[18px] text-white text-center">Turns in Jail: {currentPlayer.turnsInJail}</p>
-            </AlertDialogHeader>
-            <Button onClick={() => breakOutOfJail('rollDouble')} className="bg-yellow-400 text-black font-bold text-[17px]" disabled={currentPlayer.turnsInJail == 3}>Try Roll Double</Button>
-            <Button onClick={() => breakOutOfJail('payFine')} className="bg-yellow-400 text-black font-bold text-[17px]">Pay $50 Fine</Button>
-            <Button onClick={() => breakOutOfJail('useCard')} className="bg-yellow-400 text-black font-bold text-[17px]" disabled={currentPlayer.getOutOfJailCards == 0}>Use Get Out Of Jail Card</Button>
-            <AlertDialogFooter>
-              {/* <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => buyProperty(landedProperty)}>Buy for ${landedProperty.property.price}</AlertDialogAction> */}
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>}
-      {landedProperty && landedProperty.property.owner && landedProperty.property.owner !== landedProperty.player.name && (
-        <AlertDialog open={true} onOpenChange={() => setLandedProperty(null)}>
-          <AlertDialogTrigger><></></AlertDialogTrigger>
-          <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="bg-yellow-400 text-black w-[180px] text-[25px] font-bold text-center rounded-md">
-                Pay Rent to {landedProperty.property.owner}
-              </AlertDialogTitle>
-              <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
-                <p>RENT: ${landedProperty.property.rent}</p>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">With 1 House</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentOneHouse}</p>
-                </div>
-                <div className="flex flex-row justify-around items-center w-full my-1">
-                  <p className="w-1/2 text-center">With 2 Houses</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentTwoHouses}</p>
-                </div>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">With 3 Houses</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
-                </div>
-                <p>---------------------------</p>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">One House Cost</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
-                </div>
-              </div>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => payRent(landedProperty)}>Pay ${checkRent(landedProperty)}</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-      {landedProperty && landedProperty.property?.owner !== null && landedProperty.property?.owner !== undefined && landedProperty.property.owner === landedProperty.player.name && (
-        <AlertDialog open={true} onOpenChange={() => setLandedProperty(null)}>
-          <AlertDialogTrigger><></></AlertDialogTrigger>
-          <AlertDialogContent style={{ backgroundImage: 'url(/bg-dialog.jpg)', backgroundSize: 'cover' }} className="border-3 border-yellow-400 w-[350px] font-semibold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="bg-yellow-400 text-black w-[300px] text-[25px] font-bold text-center rounded-md">
-                Build House No.{landedProperty.property.houses + 1}
-              </AlertDialogTitle>
-              <div className="flex flex-col justify-center items-center text-white text-[20px] w-full">
-                <p>RENT: ${landedProperty.property.rent}</p>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">With 1 House</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentOneHouse}</p>
-                </div>
-                <div className="flex flex-row justify-around items-center w-full my-1">
-                  <p className="w-1/2 text-center">With 2 Houses</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentTwoHouses}</p>
-                </div>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">With 3 Houses</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.rentThreeHouses}</p>
-                </div>
-                <p>---------------------------</p>
-                <div className="flex flex-row justify-around items-center w-full">
-                  <p className="w-1/2 text-center">One House Cost</p>
-                  <p className="w-1/2 text-center">${landedProperty.property.OneHouseCost}</p>
-                </div>
-              </div>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="text-[16px]" onClick={() => setLandedProperty(null)}>No</AlertDialogCancel>
-              <AlertDialogAction className="bg-yellow-500 text-black text-[16px]" onClick={() => upgradeProperty(landedProperty.player, landedProperty.setPlayer, landedProperty.property)}>
-                Build House for ${landedProperty.property.OneHouseCost}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-      {bankruptcyModal && (
-        <AlertDialog open={true} onOpenChange={() => setBankruptcyModal(null)}>
-          <AlertDialogTrigger><></></AlertDialogTrigger>
-          <AlertDialogContent className="border-3 border-red-500 w-[350px] font-semibold">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="bg-red-500 text-white w-[200px] text-[22px] font-bold text-center rounded-md">
-                {bankruptcyModal.tenant.name} is Broke!
-              </AlertDialogTitle>
-              <div className="text-center text-white">
-                {bankruptcyModal.tenant.name} does not have enough money to pay rent of ${bankruptcyModal.rentAmount} to {bankruptcyModal.owner.name}.
-              </div>
-            </AlertDialogHeader>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-      {visible && (
-        <div className="flex flex-row justify-center absolute top-120 items-center gap-3 p-5 bg-gradient-to-b from-amber-600 to-amber-400 rounded-lg">
-          <Image
-            src={`/dice/${diceValues[0]}.jpeg`}
-            alt="dice"
-            className="h-[75px] w-[75px] rounded-md"
-            height={150}
-            width={150}
-          />
-          <Image
-            src={`/dice/${diceValues[1]}.jpeg`}
-            alt="dice"
-            className="h-[75px] w-[75px] rounded-md"
-            height={150}
-            width={150}
-          />
-        </div>
-      )}
-      {loading && (
-        <div className="flex flex-row justify-center absolute top-120 items-center gap-3 p-5 bg-gradient-to-b from-amber-600 to-amber-400 rounded-lg">
-          <Image
-            src={`/hourglass.png`}
-            alt="hourglass"
-            className="h-[75px] w-[75px] rounded-md animate-spin"
-            height={150}
-            width={150}
-          />
-        </div>
-      )}
     </div>
   );
 }
