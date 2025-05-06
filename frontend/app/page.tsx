@@ -450,7 +450,7 @@ export default function Home() {
                 body: JSON.stringify({
                   current_player: player,
                   players: players.map(p => p.player),
-                  property: property,
+                  thisProperty: property,
                   properties: properties
                 })
               });
@@ -670,7 +670,7 @@ export default function Home() {
           body: JSON.stringify({
             current_player: player,
             players: players.map(p => p.player),
-            property: property,
+            thisProperty: property,
             properties: properties
           })
         });

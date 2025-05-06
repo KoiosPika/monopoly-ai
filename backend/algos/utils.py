@@ -214,7 +214,7 @@ async def run_expectimax_for_roll_decision(current_player, players, properties, 
     return expected_score
 
 
-async def run_expectimax_for_house_building(current_player,players, properties, target_property, depth=5):
+async def run_expectimax_for_house_building(current_player,players, properties, target_property, depth=4):
     no_build_state = {
         "player": copy.deepcopy(current_player),
         "players": copy.deepcopy(players),
@@ -306,4 +306,4 @@ async def run_expectimax_for_house_building(current_player,players, properties, 
     score_build = expectimax(build_state, depth, True)
 
     # --- Decision
-    return score_build > score_no_build
+    return score_build > score_no_build // 2
