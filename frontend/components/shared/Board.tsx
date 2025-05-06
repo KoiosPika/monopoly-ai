@@ -19,7 +19,7 @@ const Board = ({ players, properties }: { players: any, properties: any }) => {
                         player.player.properties.some((property: any) => property === cell.name)
                     );
                     return (
-                        <div key={index} className={`text-white relative flex justify-center items-center border-yellow-500 border border-2 w-[120px] h-[120px] p-[5px] opacity-90`} style={{backgroundImage: `url('/properties/${cell.image}.png')`, backgroundSize: 'cover'}}>
+                        <div key={index} className={`text-white relative flex justify-center items-center border-yellow-500 border-2 w-[120px] h-[120px] p-[5px] opacity-90`} style={{backgroundImage: `url('/properties/${cell.image}.png')`, backgroundSize: 'cover'}}>
                             <p className=''>{cell.name}</p>
                             {owner && (
                                 <p className={`absolute top-[-40px] w-[110px] text-center rounded-md p-[2px]`} style={{backgroundImage: `url('/properties/${cell.image}.png')`, backgroundSize: 'cover'}}>
