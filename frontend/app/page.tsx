@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { chanceCards, communityChestCards } from "./cards";
 import { Button } from "@/components/ui/button";
-import next from "next";
 
 const initialStats = {
   balance: 1500,
@@ -31,6 +30,7 @@ const initialStats = {
 
 export default function Home() {
 
+  // Initializing state variables
   const [player1, setPlayer1] = useState<any>({ ...initialStats, name: "Player", avatar: 'avatar_1.png' });
   const [player2, setPlayer2] = useState<any>({ ...initialStats, name: "AI", avatar: 'avatar_2.png' });
   const [visible, setVisible] = useState(false)
@@ -55,14 +55,16 @@ export default function Home() {
   const [inJailDialog, setinJailDialog] = useState(true);
   const [gameDialog, setGameDialog] = useState<any>({ avatar: null, description: null });
 
-
+  // Store the players and their setters in an array for easier access
   const players = [
     { player: player1, setPlayer: setPlayer1 },
     { player: player2, setPlayer: setPlayer2 },
   ];
 
+  // Keep track of the current player
   const currentPlayer = players[currentPlayerIndex].player;
 
+  // UseEffect to handle switching turns
   useEffect(() => {
     async function handleGameTurns() {
       if (turn == 1) {
@@ -96,6 +98,7 @@ export default function Home() {
     handleGameTurns();
   }, [turn]);
 
+  // Function to handle rolling the dice
   const rollDice = () => {
     const player = player1;
     const setPlayer = setPlayer1
@@ -177,12 +180,13 @@ export default function Home() {
 
   };
 
-
+  // Function to handle the end of the turn
   const nextTurn = () => {
     setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
     setTurn((prev) => prev + 1); // No AITurn here
   };
 
+  // Function to handle buying a property
   const buyProperty = (landedProperty: any) => {
     if (landedProperty.player.balance >= landedProperty.property.price) {
       landedProperty.setPlayer((prev: any) => ({
@@ -202,6 +206,7 @@ export default function Home() {
     setLandedProperty(null);
   };
 
+  // Function to handle paying rent
   const payRent = async (landedProperty: any) => {
     let rentAmount;
 
@@ -240,6 +245,7 @@ export default function Home() {
     }
   };
 
+  // Function to handle upgrading a property
   const upgradeProperty = (player: any, setPlayer: any, property: any) => {
     if (!property || !player) return;
 
@@ -268,6 +274,7 @@ export default function Home() {
     );
   };
 
+  // Function to handle selling a property
   const checkRent = (landedProperty: any) => {
     switch (landedProperty.property.houses) {
       case 1: return landedProperty.property.rentOneHouse;
@@ -277,12 +284,15 @@ export default function Home() {
     }
   }
 
+  // Function to handle ending the turn manually
   const handleEndTurn = (player: number) => {
     nextTurn()
   }
 
+  // Function to handle sleeping to allow users to see the game dialog
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+  // Function to handle the AI's turn
   const AITurn = async () => {
     console.log("AI Turn")
     const { player, setPlayer } = players[1];
@@ -719,6 +729,7 @@ export default function Home() {
     await sleep(800);
   };
 
+  // Function to handle breaking out of jail
   const breakOutOfJail = (method: string) => {
     const player = players.filter(player => player.player.name === currentPlayer.name)
 
@@ -732,6 +743,7 @@ export default function Home() {
     }
   }
 
+  // Function to handle generating a new game scenario
   const generateScenario = () => {
     const allProperties = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"];
     const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
@@ -792,7 +804,6 @@ export default function Home() {
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden">
-      {/* Background Video */}
       <video
         autoPlay
         loop

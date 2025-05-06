@@ -1,5 +1,5 @@
 
-import random, math, copy
+import math, copy
 
 ucb_stats = {}
 

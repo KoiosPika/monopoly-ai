@@ -1,19 +1,6 @@
 import Image from 'next/image';
 import React from 'react';
 
-// Function to get color based on property type
-const getColor = (cell: string) => {
-    const colorMap: Record<string, string> = {
-        'P1': 'bg-gradient-to-l from-green-500 to-green-700', 'P6': 'bg-gradient-to-l from-green-500 to-green-700', // Green
-        'P2': 'bg-gradient-to-l from-blue-500 to-blue-700',// Blue
-        'P3': 'bg-gradient-to-l from-pink-500 to-pink-700', 'P8': 'bg-gradient-to-l from-pink-500 to-pink-700',// Pink
-        'P4': 'bg-gradient-to-l from-yellow-400 to-yellow-600', 'P7': 'bg-gradient-to-l from-yellow-400 to-yellow-600',// Orange
-        'P5': 'bg-gradient-to-l from-purple-500 to-purple-700',// Purple
-        'Chance': 'bg-gradient-to-l from-gray-400 to-gray-500', 'Community Chest': 'bg-gradient-to-l from-gray-400 to-gray-500', // Dark Gray
-        'Go': 'bg-gradient-to-l from-red-500 to-red-600', 'Jail': 'bg-gradient-to-l from-red-500 to-red-600', 'Free Parking': 'bg-gradient-to-l from-red-500 to-red-600', 'Go To Jail': 'bg-gradient-to-l from-red-500 to-red-600'
-    };
-    return colorMap[cell] || 'bg-white';
-};
 
 const Board = ({ players, properties }: { players: any, properties: any }) => {
     const bottomRow = [{ name: 'Jail', index: 4, image:2 }, { name: 'P2', index: 3, image:3 }, { name: 'Community Chest', index: 2, image:1}, { name: 'P1', index: 1, image:5 }, { name: 'Go', index: 0, image:2 }];

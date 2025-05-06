@@ -1,3 +1,7 @@
+
+// This file contains the definitions for Chance and Community Chest cards in a Monopoly game.
+
+// Defining Chance cards with their titles, descriptions, and functionalities
 export const chanceCards = [
     {
         title: "Advance to Go",
@@ -137,6 +141,7 @@ export const chanceCards = [
     },
 ];
 
+// Defining Community Chest cards with their titles, descriptions, and functionalities
 export const communityChestCards = [
     {
         title: "Grand Opera Opening",

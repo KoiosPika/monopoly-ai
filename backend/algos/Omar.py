@@ -1,5 +1,4 @@
-import random
-import numpy as np
+
 
 async def run_td_learning_for_pay_rent_decision(current_player, players, properties, rent, learning_rate=0.1, discount=0.9):
     """

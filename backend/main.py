@@ -4,7 +4,7 @@ import uvicorn
 from algos.Josh import run_mcts_for_jail_decision
 from algos.Omar import run_td_learning_for_pay_rent_decision
 from algos.utils import run_ucb1_for_buying_decision, run_expectimax_for_roll_decision, run_expectimax_for_house_building
-from models import ExpectimaxRequest, UCB1Request, MortgageRequest, TDLearningRequest, MCTSRequest, BuildHouseRequest
+from models import ExpectimaxRequest, UCB1Request, TDLearningRequest, MCTSRequest, BuildHouseRequest
 
 app = FastAPI()
 
@@ -17,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Define endpoint for jail decision using MCTS
 @app.post("/ai/mcts")
 async def Monte_Carlo_Tree_Search(data: MCTSRequest):
     current_player = data.current_player.model_dump()
@@ -26,6 +27,7 @@ async def Monte_Carlo_Tree_Search(data: MCTSRequest):
     res = await run_mcts_for_jail_decision(current_player, players, properties, jail_options)
     return res
 
+# Define endpoint for rolling decision using Expectimax
 @app.post("/ai/expectimax-eval")
 async def Expectimax_algorithm(data: ExpectimaxRequest):
     current_player = data.current_player.model_dump()
@@ -34,6 +36,7 @@ async def Expectimax_algorithm(data: ExpectimaxRequest):
     res = await run_expectimax_for_roll_decision(current_player, players, properties)
     return res
 
+# Define endpoint for mortgage decision using TD Learning
 @app.post("/ai/td-learning")
 async def TD_learning_algorithm(data: TDLearningRequest):
     current_player = data.current_player.model_dump()
@@ -43,6 +46,7 @@ async def TD_learning_algorithm(data: TDLearningRequest):
     res = await run_td_learning_for_pay_rent_decision(current_player, players, properties, rent)
     return res
 
+# Define endpoint for buying decision using UCB1
 @app.post("/ai/ucb1")
 async def TD_ucb1_algorithm(data: UCB1Request):
     current_player = data.current_player.model_dump()
@@ -52,6 +56,7 @@ async def TD_ucb1_algorithm(data: UCB1Request):
     res = await run_ucb1_for_buying_decision(current_player, players, properties, property_to_consider)
     return res
 
+# Define endpoint for building decision using Expectimax
 @app.post("/ai/expectimax-building")
 async def Heuristic_buildomg_algorithm(data: BuildHouseRequest):
     current_player = data.current_player.model_dump()
